@@ -1,5 +1,6 @@
 add_library(game_lib
     Cell.cpp
+    Chunk.cpp
 )
 
 target_include_directories(game_lib PUBLIC
