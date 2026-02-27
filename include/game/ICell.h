@@ -7,6 +7,7 @@ enum class SweepResult
     BLOWN,
     ALREADY_OPENED,
     ALREADY_FLAGGED,
+    INVALID_CELL_POSITION,
     INACCESSIBLE
 };
 
@@ -14,6 +15,7 @@ enum class FlagResult
 {
     OK,
     ALREADY_OPENED,
+    INVALID_CELL_POSITION,
     INACCESSIBLE
 };
 
