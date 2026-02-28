@@ -29,7 +29,7 @@ struct CellGlobalPosition
 
 struct ChunkPositionHash
 {
-    size_t operator()(const ChunkPosition& chunk_pos)
+    size_t operator()(const ChunkPosition& chunk_pos) const
     {
         std::hash<long long int> hasher;
         size_t row_hash = hasher(chunk_pos.Row);

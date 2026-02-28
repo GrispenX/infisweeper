@@ -25,8 +25,3 @@ const IChunk* Minefield::GetChunk(const ChunkPosition& chunk_pos) const
 
     return m_LoadedChunks.at(chunk_pos).get();
 }
-
-void Minefield::AddChunk(std::unique_ptr<IChunk> chunk, const ChunkPosition& chunk_pos)
-{
-    m_LoadedChunks[chunk_pos] = std::move(chunk);
-}

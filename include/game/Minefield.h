@@ -12,7 +12,6 @@ public:
     SweepResult Sweep(const ChunkPosition& chunk_pos, const CellInChunkPosition cell_pos) override;
     FlagResult Flag(const ChunkPosition& chunk_pos, const CellInChunkPosition cell_pos) override;
     const IChunk* GetChunk(const ChunkPosition& chunk_pos) const override;
-    void AddChunk(std::unique_ptr<IChunk> chunk, const ChunkPosition& chunk_pos) override;
 
 private:
     std::unordered_map<ChunkPosition, std::unique_ptr<IChunk>, ChunkPositionHash> m_LoadedChunks;

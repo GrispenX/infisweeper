@@ -13,7 +13,6 @@ public:
     virtual SweepResult Sweep(const ChunkPosition& chunk_pos, const CellInChunkPosition cell_pos) = 0;
     virtual FlagResult Flag(const ChunkPosition& chunk_pos, const CellInChunkPosition cell_pos) = 0;
     virtual const IChunk* GetChunk(const ChunkPosition& chunk_pos) const = 0;
-    virtual void AddChunk(std::unique_ptr<IChunk> chunk, const ChunkPosition& chunk_pos) = 0;
 };
 
 #endif // INCLUDE_GAME_IMINEFIELD_H_
