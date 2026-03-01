@@ -3,14 +3,14 @@
 
 #include "game/MinefieldPositions.h"
 #include "game/IChunk.h"
+#include <memory>
 
 class IChunkProvider
 {
 public:
     ~IChunkProvider() = default;
 
-    virtual std::unique_ptr<IChunk> GetChunk(const ChunkPosition& chunk_pos) = 0;
-    virtual std::unique_ptr<IChunk> GetRegeneratedChunk(const ChunkPosition& chunk_pos) = 0;
+    virtual std::shared_ptr<IChunk> GetChunk(const ChunkPosition& chunk_pos) = 0;
 };
 
 #endif // INCLUDE_GAME_ICHUNKPROVIDER_H_
