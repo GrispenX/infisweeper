@@ -10,7 +10,11 @@ ChunkProvider::ChunkProvider(IChunkLoader* chunk_loader, IChunkLoader* chunk_cac
 
 std::unique_ptr<IChunk> ChunkProvider::GetChunk(const ChunkPosition& chunk_pos)
 {
-    std::unique_ptr<IChunk> chunk = m_ChunkLoader->LoadChunk(chunk_pos);
+    std::unique_ptr<IChunk> chunk = m_ChunkCahce->LoadChunk(chunk_pos);
+    if(!chunk)
+    {
+        chunk = m_ChunkLoader->LoadChunk(chunk_pos);
+    }
     if(!chunk)
     {
         chunk = m_ChunkGenerator->GenerateChunk(chunk_pos);
