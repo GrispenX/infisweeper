@@ -10,6 +10,7 @@ public:
     ~IChunkProvider() = default;
 
     virtual std::unique_ptr<IChunk> GetChunk(const ChunkPosition& chunk_pos) = 0;
+    virtual std::unique_ptr<IChunk> GetRegeneratedChunk(const ChunkPosition& chunk_pos) = 0;
 };
 
 #endif // INCLUDE_GAME_ICHUNKPROVIDER_H_
