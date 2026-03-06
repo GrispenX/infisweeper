@@ -3,21 +3,31 @@
 
 #include "IChunk.h"
 #include "ICell.h"
-#include "GlobalConfig.h"
 #include <array>
 #include <memory>
 
+template<size_t TSize>
 class Chunk : public IChunk
 {
 public:
-    Chunk(std::array<std::array<std::unique_ptr<ICell>, GameConf::CHUNK_WIDTH>, GameConf::CHUNK_HEIGHT> cells);
+    Chunk(std::array<std::unique_ptr<ICell>, TSize> cells) :
+        m_Cells(cells) {}
 
-    SweepResult Sweep(const CellInChunkPosition& cell_pos) override;
-    FlagResult Flag(const CellInChunkPosition& cell_pos) override;
-    const ICell* GetCell(const CellInChunkPosition& cell_pos) const override;
+    SweepResult Sweep(size_t index) override
+    {
+        return m_Cells[index]->Sweep();
+    }
+    FlagResult Flag(size_t index) override
+    {
+        return m_Cells[index]->Flag();
+    }
+    const ICell* GetCell(size_t index) const override
+    {
+        return m_Cells[index].get();
+    }
 
 private:
-    std::array<std::array<std::unique_ptr<ICell>, GameConf::CHUNK_WIDTH>, GameConf::CHUNK_HEIGHT> m_Cells;
+    std::array<std::unique_ptr<ICell>, TSize> m_Cells;
 };
 
 #endif // INCLUDE_GAME_CHUNK_H_
