@@ -12,7 +12,7 @@ public:
     ~IChunkStorage() = default;
 
     virtual std::shared_ptr<IChunk> GetChunk(const TGeometry::ChunkPosition& chunk_pos) = 0;
-    virtual void PushChunk(const TGeometry::ChunkPosition& chunk_pos, std::shared<IChunk> chunk) = 0;
+    virtual void PushChunk(const TGeometry::ChunkPosition& chunk_pos, std::shared_ptr<IChunk> chunk) = 0;
 };
 
 #endif // INCLUDE_GAME_ICHUNKSTORAGE_H_
