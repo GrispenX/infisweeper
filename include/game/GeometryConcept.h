@@ -1,0 +1,28 @@
+#ifndef INCLUDE_GAME_GEOMETRYCONCEPT_H_
+#define INCLUDE_GAME_GEOMETRYCONCEPT_H_
+
+#include "game/PlainPosition.h"
+#include <concepts>
+#include <vector>
+
+
+template<typename T>
+concept Geometry = requires
+(
+    const typename T::MinefieldPosition& minefield_pos,
+    const PlainPosition& plain_pos
+)
+{
+    typename T::ChunkPosition;
+    typename T::CellPosition;
+    typename T::MinefieldPosition;
+    typename T::ChunkPositionHasher;
+
+    { T::CellsAmount } -> std::convertible_to<std::size_t>;
+
+    { T::PlainToMinefield(plain_pos) } -> std::same_as<typename T::MinefieldPosition>;
+    { T::MinefieldToIndex(minefield_pos) } -> std::convertible_to<size_t>;
+    { T::GetneighboursPositions(minefield_pos) } -> std::same_as<std::vector<typename T::MinefieldPosition>>;
+};
+
+#endif // INCLUDE_GAME_GEOMETRYCONCEPT_H_

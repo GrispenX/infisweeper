@@ -1,15 +1,9 @@
 #ifndef INCLUDE_GAME_GEOMETRIES_H_
 #define INCLUDE_GAME_GEOMETRIES_H_
 
+#include "game/PlainPosition.h"
 #include <vector>
 #include <cmath>
-
-
-struct PlainPosition
-{
-    double x;
-    double y;
-};
 
 
 template <typename T>
@@ -75,7 +69,7 @@ public:
 
     static size_t MinefieldToIndex(const MinefieldPosition& pos)
     {
-        return pos.cell_pos.row * 10 + pos.cell_pos.col;
+        return pos.cell_pos.row * TSize + pos.cell_pos.col;
     }
 
     static std::vector<MinefieldPosition> GetNeighboursPositions(const MinefieldPosition& pos)
