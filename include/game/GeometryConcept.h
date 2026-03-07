@@ -10,6 +10,7 @@ template<typename T>
 concept Geometry = requires
 (
     const typename T::MinefieldPosition& minefield_pos,
+    const T::ChunkPosition& chunk_pos,
     const PlainPosition& plain_pos
 )
 {
@@ -18,11 +19,15 @@ concept Geometry = requires
     typename T::MinefieldPosition;
     typename T::ChunkPositionHasher;
 
-    { T::CellsAmount } -> std::convertible_to<std::size_t>;
+    { typename T::ChunkPositionHasher()(chunk_pos) } -> std::same_as<size_t>;
 
+    { minefield_pos.chunk_pos } -> std::convertible_to<typename T::ChunkPosition>;
+    { minefield_pos.cell_pos } -> std::convertible_to<typename T::CellPosition>;
+
+    { T::CellsAmount(chunk_pos) } -> std::convertible_to<std::size_t>;
     { T::PlainToMinefield(plain_pos) } -> std::same_as<typename T::MinefieldPosition>;
     { T::MinefieldToIndex(minefield_pos) } -> std::convertible_to<size_t>;
-    { T::GetneighboursPositions(minefield_pos) } -> std::same_as<std::vector<typename T::MinefieldPosition>>;
+    { T::GetNeighboursPositions(minefield_pos) } -> std::same_as<std::vector<typename T::MinefieldPosition>>;
 };
 
 #endif // INCLUDE_GAME_GEOMETRYCONCEPT_H_

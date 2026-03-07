@@ -51,8 +51,10 @@ public:
         }
     };
 
-    static constexpr size_t Size = TSize;
-    static constexpr size_t CellsAmount = Size * Size;
+    static size_t CellsAmount(const ChunkPosition& pos)
+    {
+        return TSize * TSize;
+    }
 
     static MinefieldPosition PlainToMinefield(const PlainPosition& pos)
     {
