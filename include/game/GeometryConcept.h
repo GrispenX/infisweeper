@@ -18,6 +18,7 @@ concept Geometry = requires
     typename T::CellPosition;
     typename T::MinefieldPosition;
     typename T::ChunkPositionHasher;
+    requires std::equality_comparable<typename T::ChunkPosition>;
 
     { typename T::ChunkPositionHasher()(chunk_pos) } -> std::same_as<size_t>;
 
