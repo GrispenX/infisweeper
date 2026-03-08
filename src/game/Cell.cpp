@@ -45,3 +45,13 @@ CellType Cell::GetType() const
 {
     return m_Type;
 }
+
+void Cell::SetState(CellState state)
+{
+    m_State = state;
+}
+
+void Cell::SetType(CellType type)
+{
+    m_Type = type;
+}

@@ -11,7 +11,7 @@ public:
 
     virtual SweepResult Sweep(size_t index) = 0;
     virtual FlagResult Flag(size_t index) = 0;
-    virtual const ICell* GetCell(size_t index) const = 0;
+    virtual ICell* GetCell(size_t index) const = 0;
     virtual size_t GetSize() const = 0;
 };
 

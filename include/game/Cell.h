@@ -12,6 +12,8 @@ public:
     FlagResult Flag() override;
     CellState GetState() const override;
     CellType GetType() const override;
+    void SetState(CellState state) override;
+    void SetType(CellType type) override;
 
 private:
     CellState m_State;

@@ -41,6 +41,8 @@ public:
     virtual FlagResult Flag() = 0;
     virtual CellState GetState() const = 0;
     virtual CellType GetType() const = 0;
+    virtual void SetState(CellState state) = 0;
+    virtual void SetType(CellType type) = 0;
 };
 
 #endif // INCLUDE_GAME_ICELL_H_

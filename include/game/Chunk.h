@@ -13,7 +13,7 @@ public:
 
     SweepResult Sweep(size_t index) override;
     FlagResult Flag(size_t index) override;
-    const ICell* GetCell(size_t index) const override;
+    ICell* GetCell(size_t index) const override;
     size_t GetSize() const override;
 
 private:

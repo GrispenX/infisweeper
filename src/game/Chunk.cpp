@@ -13,7 +13,7 @@ FlagResult Chunk::Flag(size_t index)
     return m_Cells[index]->Flag();
 }
 
-const ICell* Chunk::GetCell(size_t index) const
+ICell* Chunk::GetCell(size_t index) const
 {
     return m_Cells[index].get();
 }
