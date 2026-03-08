@@ -1,0 +1,11 @@
+#ifndef INCLUDE_GAME_CELLSHAPES_H_
+#define INCLUDE_GAME_CELLSHAPES_H_
+
+enum class CellShape
+{
+    SQUARE,
+    EQUILATERAL_TRIANGLE,
+    HEXAGON
+};
+
+#endif // INCLUDE_GAME_CELLSHAPES_H_
