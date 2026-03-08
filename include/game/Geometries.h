@@ -3,6 +3,7 @@
 
 #include "game/PlainPosition.h"
 #include <vector>
+#include <array>
 #include <cmath>
 
 
@@ -59,12 +60,12 @@ public:
     static MinefieldPosition PlainToMinefield(const PlainPosition& pos)
     {
         ChunkPosition chunk_pos;
-        chunk_pos.row = floor(pos.x / TSize);
-        chunk_pos.col = floor(pos.y / TSize);
+        chunk_pos.row = floor(pos.x / (double)TSize);
+        chunk_pos.col = floor(pos.y / (double)TSize);
 
         CellPosition cell_pos;
-        cell_pos.row = floor(pos.x - chunk_pos.row * TSize);
-        cell_pos.col = floor(pos.y - chunk_pos.col * TSize);
+        cell_pos.row = floor(pos.x - chunk_pos.row * (double)TSize);
+        cell_pos.col = floor(pos.y - chunk_pos.col * (double)TSize);
 
         return MinefieldPosition{.chunk_pos = chunk_pos, .cell_pos = cell_pos};
     }
@@ -76,6 +77,16 @@ public:
 
     static std::vector<MinefieldPosition> GetNeighboursPositions(const MinefieldPosition& pos)
     {   
+        static constexpr std::array<CellPosition, 8> offsets = {
+            CellPosition{.row = -1, .col = -1},
+            CellPosition{.row = -1, .col = 0},
+            CellPosition{.row = -1, .col = 1},
+            CellPosition{.row = 0, .col = -1},
+            CellPosition{.row = 0, .col = 1},
+            CellPosition{.row = 1, .col = -1},
+            CellPosition{.row = 1, .col = 0},
+            CellPosition{.row = 1, .col = 1}
+        };
         std::vector<MinefieldPosition> neighbours;
         for(const auto& offset : offsets)
         {
@@ -109,18 +120,6 @@ public:
         }
         return neighbours;
     }
-
-private:
-    static constexpr std::array<CellPosition, 8> offsets = {
-        CellPosition{.row = -1, .col = -1},
-        CellPosition{.row = -1, .col = 0},
-        CellPosition{.row = -1, .col = 1},
-        CellPosition{.row = 0, .col = -1},
-        CellPosition{.row = 0, .col = 1},
-        CellPosition{.row = 1, .col = -1},
-        CellPosition{.row = 1, .col = 0},
-        CellPosition{.row = 1, .col = 1}
-    };
 };
 
 #endif // INCLUDE_GAME_GEOMETRIES_H_
