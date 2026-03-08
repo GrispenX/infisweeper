@@ -141,6 +141,7 @@ public:
                 positions.push_back(ChunkPosition{.row = row, .col = col});
             }
         }
+        return positions;
     }
 
     static std::vector<MinefieldPosition> GetCellsInRectangle(const PlainPosition& pos1, const PlainPosition& pos2)
@@ -178,10 +179,10 @@ public:
 
     static std::vector<std::pair<PlainPosition, PlainPosition>> GetChunkBoundaries(const ChunkPosition& pos)
     {
-        double x1 = pos.row * TSize;
-        double x2 = x1 + TSize;
-        double y1 = pos.col * TSize;
-        double y2 = y1 + TSize;
+        double x1 = pos.row * (double)TSize;
+        double x2 = x1 + (double)TSize;
+        double y1 = pos.col * (double)TSize;
+        double y2 = y1 + (double)TSize;
 
         std::vector<std::pair<PlainPosition, PlainPosition>> boundaries = {
             {PlainPosition{.x = x1, .y = y2}, PlainPosition{.x = x2, .y = y2}},
@@ -200,8 +201,8 @@ public:
 
     static PlainPosition GetCellCenter(const MinefieldPosition& pos)
     {
-        double x = pos.chunk_pos.row * TSize + pos.cell_pos.row + 0.5;
-        double y = pos.chunk_pos.col * TSize + pos.cell_pos.col + 0.5;
+        double x = pos.chunk_pos.row * (double)TSize + pos.cell_pos.row + 0.5;
+        double y = pos.chunk_pos.col * (double)TSize + pos.cell_pos.col + 0.5;
         return PlainPosition{.x = x, .y = y};
     }
 

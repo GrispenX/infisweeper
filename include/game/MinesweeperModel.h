@@ -86,6 +86,54 @@ public:
         return chunk->Flag(index);
     }
 
+    ViewportData GetCellsInRectangle(const PlainPosition& pos1, const PlainPosition& pos2)
+    {
+        ViewportData data;
+
+        // Get chunk boundaries
+        std::vector<typename TGeometry::ChunkPosition> chunk_positions = TGeometry::GetChunksInRectangle(pos1, pos2);
+        for(const auto& chunk_pos : chunk_positions)
+        {
+            std::vector<std::pair<PlainPosition, PlainPosition>> boundaries = TGeometry::GetChunkBoundaries(chunk_pos);
+            for(const auto& boundary : boundaries)
+            {
+                data.chunk_boundaries.push_back(boundary);
+            }
+        }
+
+        // Get cells
+        std::vector<typename TGeometry::MinefieldPosition> cells_positions = TGeometry::GetCellsInRectangle(pos1, pos2);
+        for(const auto& pos : cells_positions)
+        {
+            CellData cell_data;
+
+            cell_data.center = TGeometry::GetCellCenter(pos);
+            cell_data.scale = TGeometry::GetCellScale(pos);
+            cell_data.rotation = TGeometry::GetCellRotation(pos);
+            cell_data.shape = TGeometry::GetCellShape(pos);
+            
+            std::shared_ptr<IChunk> chunk = m_ChunkStorage->GetChunk(pos.chunk_pos);
+            if(chunk)
+            {
+                size_t index = TGeometry::MinefieldToIndex(pos);
+                ICell* cell = chunk->GetCell(index);
+                
+                cell_data.state = cell->GetState();
+                cell_data.type = cell->GetType();
+                cell_data.mines_around = CountMinesAround(pos);
+            }
+            else
+            {
+                cell_data.state = CellState::CLOSED;
+                cell_data.type = CellType::SAFE;
+                cell_data.mines_around = 0;
+            }
+            data.cell_data.push_back(cell_data);
+        }
+
+        return data;
+    }
+
 private:
     std::shared_ptr<IChunk> GetOrGenerateChunk(const typename TGeometry::ChunkPosition& pos)
     {
