@@ -1,17 +1,17 @@
-#ifndef INCLUDE_GAME_GAMEMANAGER_H_
-#define INCLUDE_GAME_GAMEMANAGER_H_
+#ifndef INCLUDE_GAME_GAMEMODEL_H_
+#define INCLUDE_GAME_GAMEMODEL_H_
 
 #include "game/GeometryConcept.h"
 #include "game/IChunkGenerator.h"
 #include "game/IChunkStorage.h"
-#include "game/IMinesweeperModel.h"
+#include "game/IGameModel.h"
 #include <memory>
 
 template<Geometry TGeometry>
-class MinesweeperModel : public IMinesweeperModel
+class GameModel : public IGameModel
 {
 public:
-    MinesweeperModel(std::unique_ptr<IChunkGenerator> chunk_generator, std::shared_ptr<IChunkStorage<TGeometry>> chunk_storage) :
+    GameModel(std::unique_ptr<IChunkGenerator> chunk_generator, std::shared_ptr<IChunkStorage<TGeometry>> chunk_storage) :
         m_ChunkGenerator(std::move(chunk_generator)),
         m_ChunkStorage(chunk_storage)
         {
@@ -204,4 +204,4 @@ private:
     bool m_IsStarted;
 };
 
-#endif // INCLUDE_GAME_GAMEMANAGER_H_
+#endif // INCLUDE_GAME_GAMEMODEL_H_
