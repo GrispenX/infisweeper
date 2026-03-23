@@ -10,7 +10,7 @@ template<Geometry T>
 class IChunkFactory
 {
 public:
-    using CellPosition = typename T::CellPosition
+    using CellPosition = typename T::CellPosition;
 
     virtual ~IChunkFactory() = default;
 

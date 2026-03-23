@@ -9,9 +9,11 @@ template<Geometry T>
 class ChunkFactory : public IChunkFactory<T>
 {
 public:
+    using CellPosition = typename T::CellPosition;
+
     std::unique_ptr<IChunk<T>> CreateChunk(std::vector<std::pair<CellPosition, std::unique_ptr<ICell>>> cells) override
     {
-        return std::make_unique<Chunk<T>>(cells);
+        return std::make_unique<Chunk<T>>(std::move(cells));
     }
 };
 
