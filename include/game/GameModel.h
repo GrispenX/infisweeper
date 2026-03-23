@@ -44,7 +44,7 @@ public:
         }
 
         // Chech is cell accessible
-        if(!IsAccessible(minefield_pos))
+        if(!IsAccessible(pos))
         {
             return SweepResult::INACCESSIBLE;
         }
@@ -65,7 +65,7 @@ public:
         if(result == SweepResult::BLOWN)
         {
             chunk = m_ChunkGenerator->GenerateChunk(pos.chunk_pos);
-            m_ChunkStorage->PushChunk(minefield_pos.chunk_pos, chunk);
+            m_ChunkStorage->PushChunk(pos.chunk_pos, chunk);
         }
 
         return result;
@@ -84,7 +84,7 @@ public:
         return chunk->Flag(pos.cell_pos);
     }
 
-    ChunkData GetChunkData(const ChunkPosition& pos) override
+    ChunkData<T> GetChunkData(const ChunkPosition& pos) override
     {
         ChunkData<T> data;
         std::shared_ptr<IChunk<T>> chunk = m_ChunkStorage->GetChunk(pos);
@@ -93,7 +93,7 @@ public:
             for(const CellPosition& cell_pos : T::GetAllCellPositions(pos))
             {
                 CellData<T> cell_data;
-                cell_data.pos = MinefieldPosition{.chunk_pos = pos, .cell_pos = cell_pos};
+                cell_data.pos = cell_pos;
                 cell_data.state = CellState::CLOSED;
                 cell_data.type = CellType::SAFE;
                 cell_data.mines_around = 0;
@@ -106,13 +106,14 @@ public:
             {
                 CellData<T> cell_data;
                 ICell* cell = chunk->GetCell(cell_pos);
-                cell_data.pos = MinefieldPosition{.chunk_pos = pos, .cell_pos = cell_pos};
-                cell_data.state = cell->SetState();
+                cell_data.pos = cell_pos;
+                cell_data.state = cell->GetState();
                 cell_data.type = cell->GetType();
-                cell_data.mines_around = cell_data.state == CellState::OPENED ? CountMinesAround(cell_data.pos) : 0;
+                cell_data.mines_around = cell_data.state == CellState::OPENED ? CountMinesAround(MinefieldPosition{.chunk_pos = pos, .cell_pos = cell_pos}) : 0;
                 data.cells.push_back(cell_data);
             }
         }
+        return data;
     }
 
 private:

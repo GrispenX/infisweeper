@@ -1,4 +1,5 @@
 add_library(game_lib
+    Geometries.cpp
     Cell.cpp
     Chunk.cpp
 )

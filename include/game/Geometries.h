@@ -1,9 +1,7 @@
 #ifndef INCLUDE_GAME_GEOMETRIES_H_
 #define INCLUDE_GAME_GEOMETRIES_H_
 
-#include "game/PlainPosition.h"
 #include <vector>
-#include <array>
 #include <cmath>
 
 
@@ -22,16 +20,15 @@ public:
         long long int row;
         long long int col;
 
-        bool operator==(const ChunkPosition& other) const
-        {
-            return (row == other.row && col == other.col);
-        }
+        auto operator<=>(const ChunkPosition& other) const = default;
     };
 
     struct CellPosition
     {
         int row;
         int col;
+
+        auto operator<=>(const CellPosition& other) const = default;
     };
     
     struct MinefieldPosition
@@ -40,16 +37,12 @@ public:
         CellPosition cell_pos;
     };
 
-    struct ChunkPositionHasher
-    {
-        size_t operator()(const ChunkPosition& chunk_pos) const noexcept
-        {
-            size_t seed = 0;
-            HashCombine(seed, chunk_pos.row);
-            HashCombine(seed, chunk_pos.col);
-            return seed;
-        }
-    };
+    static std::vector<CellPosition> GetAllCellPositions(const ChunkPosition& pos);
+
+    static std::vector<MinefieldPosition> GetNeighboursPositions(const MinefieldPosition& pos);
+
+private:
+    static constexpr int size = 10;
 };
 
 #endif // INCLUDE_GAME_GEOMETRIES_H_

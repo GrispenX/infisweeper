@@ -17,7 +17,7 @@ public:
 
     virtual SweepResult Sweep(const MinefieldPosition& pos) = 0;
     virtual FlagResult Flag(const MinefieldPosition& pos) = 0;
-    virtual ChunkData GetChunkData(const ChunkPosition& pos) = 0;
+    virtual ChunkData<T> GetChunkData(const ChunkPosition& pos) = 0;
 };
 
 #endif // INCLUDE_GAME_IGAMEMODEL_H_
