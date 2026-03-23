@@ -5,12 +5,15 @@
 #include "game/GeometryConcept.h"
 #include <memory>
 
+template<Geometry T>
 class IChunkGenerator
 {
 public:
-    ~IChunkGenerator() = default;
+    using ChunkPosition = typename T::ChunkPosition;
 
-    virtual std::shared_ptr<IChunk> GenerateChunk(size_t chunk_pos_hash, size_t cells_amount) = 0;
+    virtual ~IChunkGenerator() = default;
+
+    virtual std::unique_ptr<IChunk<T>> GenerateChunk(const ChunkPosition& pos) = 0;
 };
 
 #endif // INCLUDE_GAME_ICHUNKGENERATOR_H_

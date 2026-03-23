@@ -6,17 +6,46 @@
 #include <vector>
 #include <memory>
 
-class Chunk : public IChunk
+template<Geometry T>
+class Chunk : public IChunk<T>
 {
 public:
-    Chunk(std::vector<std::unique_ptr<ICell>>& cells);
+    using CellPosition = typename T::CellPosition;
 
-    SweepResult Sweep(size_t index) override;
-    FlagResult Flag(size_t index) override;
-    ICell* GetCell(size_t index) const override;
-    size_t GetSize() const override;
+    Chunk(std::vector<std::pair<CellPosition, std::unique_ptr<ICell>>> cells) :
+        m_Cells(cells.size())
+    {
+        for(auto& [pos, cell] : cells)
+        {
+            size_t index = CellPosToIndex(pos);
+            if(m_Cells.capacity() <= index) m_Cells.resize(index + 1);
+            m_Cells.at(CellPosToIndex(pos)) = std::move(cell);
+        }
+    }
+
+    SweepResult Sweep(const CellPosition& pos) override
+    {
+        size_t index = CellPosToIndex(pos);
+        return m_Cells[index]->Sweep();
+    }
+    FlagResult Flag(const CellPosition& pos) override
+    {
+        size_t index = CellPosToIndex(pos);
+        return m_Cells[index]->Flag();
+    }
+    ICell* GetCell(const CellPosition& pos) override
+    {
+        size_t index = CellPosToIndex(pos);
+        return m_Cells[index].get();
+    }
+    size_t GetSize() const override
+    {
+        return m_Cells.size();
+    }
 
 private:
+    size_t CellPosToIndex(const CellPosition& pos);
+
     std::vector<std::unique_ptr<ICell>> m_Cells;
 };
 

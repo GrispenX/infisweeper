@@ -3,15 +3,18 @@
 
 #include <cstddef>
 #include "ICell.h"
+#include "game/GeometryConcept.h"
 
+template<Geometry T>
 class IChunk
 {
 public:
-    ~IChunk() = default;
+    using CellPosition = typename T::CellPosition;
+    virtual ~IChunk() = default;
 
-    virtual SweepResult Sweep(size_t index) = 0;
-    virtual FlagResult Flag(size_t index) = 0;
-    virtual ICell* GetCell(size_t index) const = 0;
+    virtual SweepResult Sweep(const CellPosition& pos) = 0;
+    virtual FlagResult Flag(const CellPosition& pos) = 0;
+    virtual ICell* GetCell(const CellPosition& pos) = 0;
     virtual size_t GetSize() const = 0;
 };
 

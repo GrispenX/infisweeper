@@ -7,37 +7,38 @@
 #include "game/IGameModel.h"
 #include <memory>
 
-template<Geometry TGeometry>
-class GameModel : public IGameModel
+template<Geometry T>
+class GameModel : public IGameModel<T>
 {
 public:
-    GameModel(std::unique_ptr<IChunkGenerator> chunk_generator, std::shared_ptr<IChunkStorage<TGeometry>> chunk_storage) :
+    using CellPosition = typename T::CellPosition;
+    using ChunkPosition = typename T::ChunkPosition;
+    using MinefieldPosition = typename T::MinefieldPosition;
+
+    GameModel(std::unique_ptr<IChunkGenerator<T>> chunk_generator, std::unique_ptr<IChunkStorage<T>> chunk_storage) :
         m_ChunkGenerator(std::move(chunk_generator)),
-        m_ChunkStorage(chunk_storage)
+        m_ChunkStorage(std::move(chunk_storage))
         {
             m_IsStarted = false;
         }
 
-    SweepResult Sweep(const PlainPosition& pos) override
+    SweepResult Sweep(const MinefieldPosition& pos) override
     {
-        typename TGeometry::MinefieldPosition minefield_pos = TGeometry::PlainToMinefield(pos);
-
         // Allow to sweep everywhere on first click
         if(!m_IsStarted)
         {
-            std::vector<typename TGeometry::MinefieldPosition> safe_zone = TGeometry::GetNeighboursPositions(minefield_pos);
-            safe_zone.push_back(minefield_pos);
-            for(const auto& safe_pos : safe_zone)
+            std::vector<MinefieldPosition> safe_zone = T::GetNeighboursPositions(pos);
+            safe_zone.push_back(pos);
+            for(const MinefieldPosition& safe_pos : safe_zone)
             {
-                std::shared_ptr<IChunk> chunk = GetOrGenerateChunk(safe_pos.chunk_pos);
-                size_t index = TGeometry::MinefieldToIndex(safe_pos);
-                ICell* cell = chunk->GetCell(index);
+                std::shared_ptr<IChunk<T>> chunk = GetOrGenerateChunk(safe_pos.chunk_pos);
+                ICell* cell = chunk->GetCell(safe_pos.cell_pos);
                 if(cell->GetType() == CellType::MINE)
                 {
                     cell->SetType(CellType::SAFE);
                 }
             }
-            SweepZeros(minefield_pos);
+            SweepZeros(pos);
             m_IsStarted = true;
             return SweepResult::OK;
         }
@@ -49,110 +50,90 @@ public:
         }
 
         // Recursively sweep around zeros
-        std::shared_ptr<IChunk> chunk = GetOrGenerateChunk(minefield_pos.chunk_pos);
-        size_t index = TGeometry::MinefieldToIndex(minefield_pos);
-        ICell* cell = chunk->GetCell(index);
-        if(CountMinesAround(minefield_pos) == 0 && cell->GetType() != CellType::MINE && cell->GetState() == CellState::CLOSED)
+        std::shared_ptr<IChunk<T>> chunk = GetOrGenerateChunk(pos.chunk_pos);
+        ICell* cell = chunk->GetCell(pos.cell_pos);
+        if(CountMinesAround(pos) == 0 && cell->GetType() != CellType::MINE && cell->GetState() == CellState::CLOSED)
         {
-            SweepZeros(minefield_pos);
+            SweepZeros(pos);
             return SweepResult::OK;
         }
 
         // Process sweep
-        SweepResult result = chunk->Sweep(index);
+        SweepResult result = chunk->Sweep(pos.cell_pos);
 
         // Regenerate chunk if blown
         if(result == SweepResult::BLOWN)
         {
-            chunk = m_ChunkGenerator->GenerateChunk(typename TGeometry::ChunkPositionHasher()(minefield_pos.chunk_pos), TGeometry::CellsAmount(minefield_pos.chunk_pos));
+            chunk = m_ChunkGenerator->GenerateChunk(pos.chunk_pos);
             m_ChunkStorage->PushChunk(minefield_pos.chunk_pos, chunk);
         }
 
         return result;
     }
 
-    FlagResult Flag(const PlainPosition& pos) override
+    FlagResult Flag(const MinefieldPosition& pos) override
     {
         // Check is cell accessible
-        typename TGeometry::MinefieldPosition minefield_pos = TGeometry::PlainToMinefield(pos);
-        if(!IsAccessible(minefield_pos))
+        if(!IsAccessible(pos))
         {
             return FlagResult::INACCESSIBLE;
         }
 
         // Process flag
-        std::shared_ptr<IChunk> chunk = GetOrGenerateChunk(minefield_pos.chunk_pos);
-        size_t index = TGeometry::MinefieldToIndex(minefield_pos);
-        return chunk->Flag(index);
+        std::shared_ptr<IChunk<T>> chunk = GetOrGenerateChunk(pos.chunk_pos);
+        return chunk->Flag(pos.cell_pos);
     }
 
-    ViewportData GetCellsInRectangle(const PlainPosition& pos1, const PlainPosition& pos2)
+    ChunkData GetChunkData(const ChunkPosition& pos) override
     {
-        ViewportData data;
-
-        // Get chunk boundaries
-        std::vector<typename TGeometry::ChunkPosition> chunk_positions = TGeometry::GetChunksInRectangle(pos1, pos2);
-        for(const auto& chunk_pos : chunk_positions)
+        ChunkData<T> data;
+        std::shared_ptr<IChunk<T>> chunk = m_ChunkStorage->GetChunk(pos);
+        if(!chunk)
         {
-            std::vector<std::pair<PlainPosition, PlainPosition>> boundaries = TGeometry::GetChunkBoundaries(chunk_pos);
-            for(const auto& boundary : boundaries)
+            for(const CellPosition& cell_pos : T::GetAllCellPositions(pos))
             {
-                data.chunk_boundaries.push_back(boundary);
-            }
-        }
-
-        // Get cells
-        std::vector<typename TGeometry::MinefieldPosition> cells_positions = TGeometry::GetCellsInRectangle(pos1, pos2);
-        for(const auto& pos : cells_positions)
-        {
-            CellData cell_data;
-
-            cell_data.center = TGeometry::GetCellCenter(pos);
-            cell_data.scale = TGeometry::GetCellScale(pos);
-            cell_data.rotation = TGeometry::GetCellRotation(pos);
-            cell_data.shape = TGeometry::GetCellShape(pos);
-            
-            std::shared_ptr<IChunk> chunk = m_ChunkStorage->GetChunk(pos.chunk_pos);
-            if(chunk)
-            {
-                size_t index = TGeometry::MinefieldToIndex(pos);
-                ICell* cell = chunk->GetCell(index);
-                
-                cell_data.state = cell->GetState();
-                cell_data.type = cell->GetType();
-                cell_data.mines_around = CountMinesAround(pos);
-            }
-            else
-            {
+                CellData<T> cell_data;
+                cell_data.pos = MinefieldPosition{.chunk_pos = pos, .cell_pos = cell_pos};
                 cell_data.state = CellState::CLOSED;
                 cell_data.type = CellType::SAFE;
                 cell_data.mines_around = 0;
+                data.cells.push_back(cell_data);
             }
-            data.cell_data.push_back(cell_data);
         }
-
-        return data;
+        else
+        {
+            for(const CellPosition& cell_pos : T::GetAllCellPositions(pos))
+            {
+                CellData<T> cell_data;
+                ICell* cell = chunk->GetCell(cell_pos);
+                cell_data.pos = MinefieldPosition{.chunk_pos = pos, .cell_pos = cell_pos};
+                cell_data.state = cell->SetState();
+                cell_data.type = cell->GetType();
+                cell_data.mines_around = cell_data.state == CellState::OPENED ? CountMinesAround(cell_data.pos) : 0;
+                data.cells.push_back(cell_data);
+            }
+        }
     }
 
 private:
-    std::shared_ptr<IChunk> GetOrGenerateChunk(const typename TGeometry::ChunkPosition& pos)
+    std::shared_ptr<IChunk<T>> GetOrGenerateChunk(const ChunkPosition& pos)
     {
-        std::shared_ptr<IChunk> chunk = m_ChunkStorage->GetChunk(pos);
+        std::shared_ptr<IChunk<T>> chunk = m_ChunkStorage->GetChunk(pos);
         if(!chunk)
         {
-            chunk = m_ChunkGenerator->GenerateChunk(typename TGeometry::ChunkPositionHasher()(pos), TGeometry::CellsAmount(pos));
+            chunk = m_ChunkGenerator->GenerateChunk(pos);
             m_ChunkStorage->PushChunk(pos, chunk);
         }
         return chunk;
     }
 
-    bool IsAccessible(const typename TGeometry::MinefieldPosition& pos)
+    bool IsAccessible(const MinefieldPosition& pos)
     {
-        std::vector<typename TGeometry::MinefieldPosition> neighbours_positions = TGeometry::GetNeighboursPositions(pos);
+        std::vector<MinefieldPosition> neighbours_positions = T::GetNeighboursPositions(pos);
         for(const auto& neighbour_pos : neighbours_positions)
         {
-            std::shared_ptr<IChunk> neighbour = m_ChunkStorage->GetChunk(neighbour_pos.chunk_pos);
-            if(neighbour && neighbour->GetCell(TGeometry::MinefieldToIndex(neighbour_pos))->GetState() == CellState::OPENED)
+            std::shared_ptr<IChunk<T>> neighbour = m_ChunkStorage->GetChunk(neighbour_pos.chunk_pos);
+            if(neighbour && neighbour->GetCell(neighbour_pos.cell_pos)->GetState() == CellState::OPENED)
             {
                 return true;
             }
@@ -160,15 +141,14 @@ private:
         return false;
     }
 
-    size_t CountMinesAround(const typename TGeometry::MinefieldPosition& pos)
+    size_t CountMinesAround(const MinefieldPosition& pos)
     {
-        std::vector<typename TGeometry::MinefieldPosition> neighbours_positions = TGeometry::GetNeighboursPositions(pos);
+        std::vector<MinefieldPosition> neighbours_positions = T::GetNeighboursPositions(pos);
         size_t mines = 0;
         for(const auto& neighbour_pos : neighbours_positions)
         {
-            std::shared_ptr<IChunk> neighbour = GetOrGenerateChunk(neighbour_pos.chunk_pos);
-            size_t index = TGeometry::MinefieldToIndex(neighbour_pos);
-            if(neighbour->GetCell(index)->GetType() == CellType::MINE)
+            std::shared_ptr<IChunk<T>> neighbour = GetOrGenerateChunk(neighbour_pos.chunk_pos);
+            if(neighbour->GetCell(neighbour_pos.cell_pos)->GetType() == CellType::MINE)
             {
                 mines += 1;
             }
@@ -176,11 +156,10 @@ private:
         return mines;
     }
 
-    void SweepZeros(const typename TGeometry::MinefieldPosition& pos)
+    void SweepZeros(const MinefieldPosition& pos)
     {
-        std::shared_ptr<IChunk> chunk = GetOrGenerateChunk(pos.chunk_pos);
-        size_t index = TGeometry::MinefieldToIndex(pos);
-        SweepResult result = chunk->Sweep(index);
+        std::shared_ptr<IChunk<T>> chunk = GetOrGenerateChunk(pos.chunk_pos);
+        SweepResult result = chunk->Sweep(pos.cell_pos);
 
         if(CountMinesAround(pos) != 0)
         {
@@ -192,14 +171,14 @@ private:
             return;
         }
 
-        for(const auto& neighbour_pos : TGeometry::GetNeighboursPositions(pos))
+        for(const auto& neighbour_pos : T::GetNeighboursPositions(pos))
         {
             SweepZeros(neighbour_pos);
         }
     }
 
-    std::unique_ptr<IChunkGenerator> m_ChunkGenerator;
-    std::shared_ptr<IChunkStorage<TGeometry>> m_ChunkStorage;
+    std::unique_ptr<IChunkGenerator<T>> m_ChunkGenerator;
+    std::unique_ptr<IChunkStorage<T>> m_ChunkStorage;
 
     bool m_IsStarted;
 };

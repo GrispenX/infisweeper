@@ -4,15 +4,19 @@
 #include "game/GeometryConcept.h"
 #include "game/IChunk.h"
 #include <memory>
+#include <vector>
 
-template<Geometry TGeometry>
+template<Geometry T>
 class IChunkStorage
 {
 public:
-    ~IChunkStorage() = default;
+    using ChunkPosition = typename T::ChunkPosition;
 
-    virtual std::shared_ptr<IChunk> GetChunk(const TGeometry::ChunkPosition& chunk_pos) = 0;
-    virtual void PushChunk(const TGeometry::ChunkPosition& chunk_pos, std::shared_ptr<IChunk> chunk) = 0;
+    virtual ~IChunkStorage() = default;
+
+    virtual std::shared_ptr<IChunk<T>> GetChunk(const ChunkPosition& chunk_pos) = 0;
+    virtual std::vector<std::pair<ChunkPosition, std::shared_ptr<IChunk<T>>>> GetAllChunks() = 0;
+    virtual void PushChunk(const ChunkPosition& chunk_pos, std::shared_ptr<IChunk<T>> chunk) = 0;
 };
 
 #endif // INCLUDE_GAME_ICHUNKSTORAGE_H_
