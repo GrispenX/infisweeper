@@ -1,28 +1,85 @@
 #include "UI/GameScreen.h"
+#include "game/Geometries.h"
 
-GameScreen::GameScreen(std::unique_ptr<IGameView> view, std::unique_ptr<IGameModel> model) :
-    m_View(std::move(view)),
-    m_Model(std::move(model))
+template<>
+SquareGeometry::MinefieldPosition GameScreen<SquareGeometry>::PlainToMinefield(const PlainPosition& pos)
 {
-    m_View->Subscribe(this);
+    ChunkPosition chunk;
+    chunk.row = floor(pos.x / (double)SquareGeometry::size);
+    chunk.col = floor(pos.y / (double)SquareGeometry::size);
+
+    CellPosition cell;
+    cell.row = floor(pos.x - chunk.row * (double)SquareGeometry::size);
+    cell.col = floor(pos.y - chunk.col * (double)SquareGeometry::size);
+
+    return MinefieldPosition{.chunk_pos = chunk, .cell_pos = cell};
 }
 
-std::unique_ptr<IScreen> GameScreen::Update()
+template<>
+PlainPosition GameScreen<SquareGeometry>::GetCellCenterPos(const MinefieldPosition& pos)
 {
-    m_View->Update();
+    double x = pos.chunk_pos.row * SquareGeometry::size + pos.cell_pos.row + 0.5;
+    double y = pos.chunk_pos.col * SquareGeometry::size + pos.cell_pos.col + 0.5;
+    return PlainPosition{.x = x, .y = y};
+}
+
+template<>
+double GameScreen<SquareGeometry>::GetCellSize(const MinefieldPosition& pos)
+{
+    return 1.0;
+}
+
+template<>
+double GameScreen<SquareGeometry>::GetCellRotation(const MinefieldPosition& pos)
+{
+    return 0.0;
+}
+
+template<>
+CellShape GameScreen<SquareGeometry>::GetCellShape(const MinefieldPosition& pos)
+{
+    return CellShape::SQUARE;
+}
+
+template<>
+std::vector<SquareGeometry::ChunkPosition> GameScreen<SquareGeometry>::GetChunksInRectangle(const PlainPosition& pos1, const PlainPosition& pos2)
+{
+    double min_x = std::min(pos1.x, pos2.x);
+    double min_y = std::min(pos1.y, pos2.y);
+    double max_x = std::max(pos1.x, pos2.x);
+    double max_y = std::max(pos1.y, pos2.y);
+
+    long long int min_row = std::floor(min_x / (double)SquareGeometry::size);
+    long long int min_col = std::floor(min_y / (double)SquareGeometry::size);
+    long long int max_row = std::floor(max_x / (double)SquareGeometry::size);
+    long long int max_col = std::floor(max_y / (double)SquareGeometry::size);
+
+    std::vector<ChunkPosition> positions;
+    for(long long int row = min_row; row <= max_row; row++)
+    {
+        for(long long int col = min_col; col <= max_col; col++)
+        {
+            positions.push_back(ChunkPosition{.row = row, .col = col});
+        }
+    }
+
+    return positions;
+}
+
+template<>
+std::vector<std::pair<PlainPosition, PlainPosition>> GameScreen<SquareGeometry>::GetChunkBoundaries(const ChunkPosition& pos)
+{
+    double x1 = pos.row * SquareGeometry::size;
+    double x2 = x1 + SquareGeometry::size;
+    double y1 = pos.col * SquareGeometry::size;
+    double y2 = y1 + SquareGeometry::size;
+
+    std::vector<std::pair<PlainPosition, PlainPosition>> boundaries = {
+        {PlainPosition{.x = x1, .y = y2}, PlainPosition{.x = x2, .y = y2}},
+        {PlainPosition{.x = x1, .y = y1}, PlainPosition{.x = x2, .y = y1}},
+        {PlainPosition{.x = x1, .y = y2}, PlainPosition{.x = x1, .y = y1}},
+        {PlainPosition{.x = x2, .y = y2}, PlainPosition{.x = x2, .y = y1}}
+    };
     
-    std::pair<PlainPosition, PlainPosition> corners = m_View->GetVisibleMinefieldCorners();
-    ViewportData data = m_Model->GetCellsInRectangle(corners.first, corners.second);
-    m_View->Draw(data);
-    return nullptr;
-}
-
-void GameScreen::OnMinefieldLeftClick(const PlainPosition& pos)
-{
-    m_Model->Sweep(pos);
-}
-
-void GameScreen::OnMinefieldRightClick(const PlainPosition& pos)
-{
-    m_Model->Flag(pos);
+    return boundaries;
 }

@@ -1,36 +1,34 @@
 #include <iostream>
 #include <unordered_map>
-#include <map>
-#include "game/GeometryConcept.h"
-#include "game/Geometries.h"
-#include "game/Chunk.h"
-#include "game/Cell.h"
-#include "game/IChunkGenerator.h"
-#include "game/IChunkStorage.h"
 #include "game/GameModel.h"
-#include "game/PlainPosition.h"
-#include "UI/GameScreen.h"
-#include "UI/GameView.h"
+#include "game/ChunkGenerator.h"
+#include "game/Geometries.h"
+#include "game/ChunkFactory.h"
 
-class ChunkGenerator : public IChunkGenerator
+#include "UI/GameView.h"
+#include "UI/GameScreen.h"
+
+#include <raylib.h>
+
+template<>
+struct std::hash<SquareGeometry::ChunkPosition>
 {
-public:
-    std::shared_ptr<IChunk> GenerateChunk(size_t chunk_pos_hash, size_t cells_amount) override
+    size_t operator()(const SquareGeometry::ChunkPosition& pos) const
     {
-        std::vector<std::unique_ptr<ICell>> cells(cells_amount);
-        for(size_t i = 0; i < cells_amount; i++)
-        {
-            cells[i] = std::make_unique<Cell>(CellType::MINE, CellState::CLOSED);
-        }
-        return std::make_shared<Chunk>(cells);
+        size_t seed = 0;
+        HashCombine(seed, pos.row);
+        HashCombine(seed, pos.col);
+        return seed;
     }
 };
 
-template<Geometry TGeometry>
-class ChunkStorage : public IChunkStorage<TGeometry>
+template<Geometry T>
+class ChunkStorage : public IChunkStorage<T>
 {
 public:
-    std::shared_ptr<IChunk> GetChunk(const TGeometry::ChunkPosition& chunk_pos) override
+    using ChunkPosition = typename T::ChunkPosition;
+
+    std::shared_ptr<IChunk<T>> GetChunk(const ChunkPosition& chunk_pos) override
     {
         if(m_Chunks.contains(chunk_pos))
         {
@@ -38,13 +36,24 @@ public:
         }
         return nullptr;
     }
-    void PushChunk(const TGeometry::ChunkPosition& chunk_pos, std::shared_ptr<IChunk> chunk) override
+
+    std::vector<std::pair<ChunkPosition, std::shared_ptr<IChunk<T>>>> GetAllChunks() override
+    {
+        std::vector<std::pair<ChunkPosition, std::shared_ptr<IChunk<T>>>> chunks;
+        for(const auto& [pos, chunk] : m_Chunks)
+        {
+            chunks.push_back(std::make_pair(pos, chunk));
+        }
+        return chunks;
+    }
+
+    void PushChunk(const ChunkPosition& chunk_pos, std::shared_ptr<IChunk<T>> chunk) override
     {
         m_Chunks[chunk_pos] = chunk;
     }
 
 private:
-    std::unordered_map<typename TGeometry::ChunkPosition, std::shared_ptr<IChunk>, typename TGeometry::ChunkPositionHasher> m_Chunks;
+    std::unordered_map<ChunkPosition, std::shared_ptr<IChunk<T>>> m_Chunks;
 };
 
 int main()
@@ -54,13 +63,16 @@ int main()
     Image img = LoadImage("/home/grispenx/Pictures/cell.png");
     Texture2D texture = LoadTextureFromImage(img);
 
-    std::unique_ptr<IChunkGenerator> gen = std::make_unique<ChunkGenerator>();
-    std::shared_ptr<IChunkStorage<SquareGeometry<10>>> storage = std::make_shared<ChunkStorage<SquareGeometry<10>>>();
-    std::unique_ptr<IGameModel> model = std::make_unique<GameModel<SquareGeometry<10>>>(std::move(gen), storage);
-    
-    std::unique_ptr<IGameView> view = std::make_unique<GameView>(texture);
 
-    GameScreen screen(std::move(view), std::move(model));
+
+    std::unique_ptr<IChunkGenerator<SquareGeometry>> generator = std::make_unique<ChunkGenerator<SquareGeometry>>(std::make_unique<ChunkFactory<SquareGeometry>>(), 0.2);
+    std::unique_ptr<IChunkStorage<SquareGeometry>> storage = std::make_unique<ChunkStorage<SquareGeometry>>();
+    std::unique_ptr<IGameModel<SquareGeometry>> model = std::make_unique<GameModel<SquareGeometry>>(std::move(generator), std::move(storage));
+
+    std::unique_ptr<IGameView> view = std::make_unique<GameView>(texture);
+    GameScreen<SquareGeometry> screen(std::move(view), std::move(model));
+
+
 
     while(!WindowShouldClose())
     {

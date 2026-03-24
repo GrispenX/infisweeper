@@ -12,7 +12,7 @@ public:
 
     std::pair<PlainPosition, PlainPosition> GetVisibleMinefieldCorners() override;
     void Update() override;
-    void Draw(const ViewportData& data) override;
+    void Draw(const std::vector<ChunkViewData>& data) override;
     void Subscribe(IGameViewObserver* observer) override;
 
 private:

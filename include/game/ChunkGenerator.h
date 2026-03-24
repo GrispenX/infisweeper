@@ -3,6 +3,7 @@
 
 #include "game/IChunkGenerator.h"
 #include "game/IChunkFactory.h"
+#include "game/Cell.h"
 #include <random>
 
 template<Geometry T>

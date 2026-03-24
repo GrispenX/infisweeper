@@ -64,7 +64,7 @@ void GameView::Update()
     }
 }
 
-void GameView::Draw(const ViewportData& data)
+void GameView::Draw(const std::vector<ChunkViewData>& data)
 {
     BeginDrawing();
     ClearBackground(DARKGREEN);
@@ -73,34 +73,37 @@ void GameView::Draw(const ViewportData& data)
     std::cout << "Zoom:     " << m_Zoom << "\n";
     std::cout << "Position: " << m_Position.x << "\t" << m_Position.y << "\n\n";
 
-    for(const auto& cell : data.cell_data)
+    for(const auto& chunk : data)
     {
-        Rectangle source;
-        source.x = 0;
-        source.y = 0;
-        source.width = m_CellTexture.width;
-        source.height = m_CellTexture.height;
-        Vector2 center = PlainToScreen(cell.center);
-        Rectangle dest;
-        dest.x = center.x;
-        dest.y = center.y;
-        dest.width = cell.scale * m_Zoom;
-        dest.height = cell.scale * m_Zoom;
-        Vector2 origin;
-        origin.x = dest.width / 2;
-        origin.y = dest.height / 2;
+        for(const auto& cell : chunk.cells)
+        {
+            Rectangle source;
+            source.x = 0;
+            source.y = 0;
+            source.width = m_CellTexture.width;
+            source.height = m_CellTexture.height;
+            Vector2 center = PlainToScreen(cell.center_pos);
+            Rectangle dest;
+            dest.x = center.x;
+            dest.y = center.y;
+            dest.width = cell.size * m_Zoom;
+            dest.height = cell.size * m_Zoom;
+            Vector2 origin;
+            origin.x = dest.width / 2;
+            origin.y = dest.height / 2;
 
-        Color tint = cell.state == CellState::CLOSED ? DARKGRAY : WHITE;
-        
-        DrawTexturePro(m_CellTexture, source, dest, origin, cell.rotation, tint);
+            Color tint = cell.state == CellState::CLOSED ? DARKGRAY : WHITE;
+            
+            DrawTexturePro(m_CellTexture, source, dest, origin, cell.rotation, tint);
 
-        if(cell.state == CellState::FLAGGED) DrawText("F", (int)dest.x, (int)dest.y, 14, LIME);
-        else if(cell.state == CellState::OPENED && cell.mines_around > 0) DrawText(std::to_string(cell.mines_around).c_str(), (int)dest.x, (int)dest.y, 14, BLACK);
-    }
+            if(cell.state == CellState::FLAGGED) DrawText("F", (int)dest.x, (int)dest.y, 14, LIME);
+            else if(cell.state == CellState::OPENED && cell.mines_around > 0) DrawText(std::to_string(cell.mines_around).c_str(), (int)dest.x, (int)dest.y, 14, BLACK);
+        }
 
-    for(const auto& bound : data.chunk_boundaries)
-    {
-        DrawLineEx(PlainToScreen(bound.first), PlainToScreen(bound.second), 5, RED);
+        for(const auto& boundary : chunk.boundaries)
+        {
+            DrawLineEx(PlainToScreen(boundary.first), PlainToScreen(boundary.second), 5, RED);
+        }
     }
 
     EndDrawing();

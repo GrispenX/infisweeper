@@ -1,6 +1,8 @@
 #ifndef INCLUDE_UI_IGAMEVIEWOBSERVER_H_
 #define INCLUDE_UI_IGAMEVIEWOBSERVER_H_
 
+#include "game/PlainPosition.h"
+
 class IGameViewObserver
 {
 public:

@@ -41,7 +41,6 @@ public:
 
     static std::vector<MinefieldPosition> GetNeighboursPositions(const MinefieldPosition& pos);
 
-private:
     static constexpr int size = 10;
 };
 
