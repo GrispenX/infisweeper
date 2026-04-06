@@ -1,10 +1,11 @@
 #include "UI/GameView.h"
+#include "UI/AssetIDs.h"
 #include <iostream>
 
-GameView::GameView(Texture2D cell) :
+GameView::GameView(std::shared_ptr<IAssetManager> asset_manager) :
     m_Position({0, 0}),
-    m_Zoom(1.0),
-    m_CellTexture(cell) // TEMP
+    m_Zoom(100.0),
+    m_AssetManager(asset_manager)
 {}
 
 std::pair<PlainPosition, PlainPosition> GameView::GetVisibleMinefieldCorners()
@@ -51,10 +52,10 @@ void GameView::Update()
     {
         PlainPosition mouse_plain_before = ScreenToPlain(GetMousePosition());
 
-        if (wheel > 0) m_Zoom += 5; 
-        else m_Zoom -= 5;
+        if (wheel > 0) m_Zoom *= 1.1; 
+        else m_Zoom /= 1.1;
 
-        if (m_Zoom < 5) m_Zoom = 5;
+        if (m_Zoom < 10) m_Zoom = 10;
         if (m_Zoom > 1000.0) m_Zoom = 1000.0;
 
         PlainPosition mouse_world_after = ScreenToPlain(GetMousePosition());
@@ -64,50 +65,72 @@ void GameView::Update()
     }
 }
 
+void GameView::DrawCell(const CellViewData& cell_data)
+{
+    Texture cell_texture = m_AssetManager->GetTexture(TextureID::SQUARE_CELL); // TEMP
+    Font cell_font = m_AssetManager->GetFont(FontID::DEFAULT); // TEMP
+    Vector2 screen_pos = PlainToScreen(cell_data.center_pos);
+
+    Rectangle source {
+        .x = 0,
+        .y = 0,
+        .width = (float)cell_texture.width,
+        .height = (float)cell_texture.height
+    };
+
+    Rectangle dest {
+        .x = screen_pos.x,
+        .y = screen_pos.y,
+        .width = (float)(cell_data.size * m_Zoom),
+        .height = (float)(cell_data.size * m_Zoom)
+    };
+
+    Vector2 origin {
+        .x = dest.width / 2.0f,
+        .y = dest.height / 2.0f
+    };
+
+    Color tint = cell_data.state == CellState::OPENED ? Color{255, 255, 255, 255} : Color{150, 150, 150, 255}; // TEMP
+
+    DrawTexturePro(cell_texture, source, dest, origin, cell_data.rotation, tint);
+
+    if(cell_data.state == CellState::OPENED && cell_data.mines_around > 0)
+    {
+        std::string text = std::to_string(cell_data.mines_around);
+        float font_size = 0.5f * (float)m_Zoom;
+        Vector2 text_size = MeasureTextEx(cell_font, text.c_str(), font_size, 0.5f);
+        DrawTextPro(cell_font, std::to_string(cell_data.mines_around).c_str(), screen_pos, {text_size.x / 2.0f, text_size.y / 2.0f}, cell_data.rotation, font_size, 0.5f, BLACK);
+    }
+}
+
+void GameView::DrawChunk(const ChunkViewData& chunk_data)
+{
+    for(const auto& cell_data : chunk_data.cells)
+    {
+        DrawCell(cell_data);
+    }
+
+    for(const auto& boundary : chunk_data.boundaries)
+    {
+        DrawLineEx(PlainToScreen(boundary.first), PlainToScreen(boundary.second), 4, RED);
+    }
+}
+
 void GameView::Draw(const std::vector<ChunkViewData>& data)
 {
     BeginDrawing();
     ClearBackground(DARKGREEN);
 
-    std::cout << "FPS:      " << GetFPS() << "\n";
-    std::cout << "Zoom:     " << m_Zoom << "\n";
-    std::cout << "Position: " << m_Position.x << "\t" << m_Position.y << "\n\n";
-
     for(const auto& chunk : data)
     {
-        for(const auto& cell : chunk.cells)
-        {
-            Rectangle source;
-            source.x = 0;
-            source.y = 0;
-            source.width = m_CellTexture.width;
-            source.height = m_CellTexture.height;
-            Vector2 center = PlainToScreen(cell.center_pos);
-            Rectangle dest;
-            dest.x = center.x;
-            dest.y = center.y;
-            dest.width = cell.size * m_Zoom;
-            dest.height = cell.size * m_Zoom;
-            Vector2 origin;
-            origin.x = dest.width / 2;
-            origin.y = dest.height / 2;
-
-            Color tint = cell.state == CellState::CLOSED ? DARKGRAY : WHITE;
-            
-            DrawTexturePro(m_CellTexture, source, dest, origin, cell.rotation, tint);
-
-            if(cell.state == CellState::FLAGGED) DrawText("F", (int)dest.x, (int)dest.y, 14, LIME);
-            else if(cell.state == CellState::OPENED && cell.mines_around > 0) DrawText(std::to_string(cell.mines_around).c_str(), (int)dest.x, (int)dest.y, 14, BLACK);
-        }
-
-        for(const auto& boundary : chunk.boundaries)
-        {
-            DrawLineEx(PlainToScreen(boundary.first), PlainToScreen(boundary.second), 5, RED);
-        }
+        DrawChunk(chunk);
     }
+
+    DrawFPS(10, 10);
 
     EndDrawing();
 }
+
 
 void GameView::Subscribe(IGameViewObserver* observer)
 {

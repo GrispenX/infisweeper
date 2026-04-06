@@ -5,6 +5,7 @@
 #include "game/Geometries.h"
 #include "game/ChunkFactory.h"
 
+#include "UI/AssetManager.h"
 #include "UI/GameView.h"
 #include "UI/GameScreen.h"
 
@@ -60,8 +61,15 @@ int main()
 {
     InitWindow(1920, 1080, "Test");
     SetTargetFPS(75);
-    Image img = LoadImage("/home/grispenx/Pictures/cell.png");
-    Texture2D texture = LoadTextureFromImage(img);
+
+
+    std::unordered_map<TextureID, std::filesystem::path> textures {
+        {TextureID::SQUARE_CELL, "/home/grispenx/projects/infisweeper/assets/opened_cell.png"}
+    };
+
+    std::unordered_map<FontID, std::filesystem::path> fonts {
+        {FontID::DEFAULT, "/home/grispenx/projects/infisweeper/assets/SpaceMono-Bold.ttf"}
+    };
 
 
 
@@ -69,7 +77,8 @@ int main()
     std::unique_ptr<IChunkStorage<SquareGeometry>> storage = std::make_unique<ChunkStorage<SquareGeometry>>();
     std::unique_ptr<IGameModel<SquareGeometry>> model = std::make_unique<GameModel<SquareGeometry>>(std::move(generator), std::move(storage));
 
-    std::unique_ptr<IGameView> view = std::make_unique<GameView>(texture);
+    std::shared_ptr<IAssetManager> assets = std::make_unique<AssetManager>(textures, fonts);
+    std::unique_ptr<IGameView> view = std::make_unique<GameView>(assets);
     GameScreen<SquareGeometry> screen(std::move(view), std::move(model));
 
 
@@ -78,7 +87,4 @@ int main()
     {
         screen.Update();
     }
-
-    UnloadTexture(texture);
-    UnloadImage(img);
 }
