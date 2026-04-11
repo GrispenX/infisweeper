@@ -4,7 +4,7 @@
 #include "game/GeometryConcept.h"
 #include "game/IChunk.h"
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 template<Geometry T>
 class IChunkStorage
@@ -15,7 +15,7 @@ public:
     virtual ~IChunkStorage() = default;
 
     virtual std::shared_ptr<IChunk<T>> GetChunk(const ChunkPosition& chunk_pos) = 0;
-    virtual std::vector<std::pair<ChunkPosition, std::shared_ptr<IChunk<T>>>> GetAllChunks() = 0;
+    virtual std::unordered_map<ChunkPosition, std::shared_ptr<IChunk<T>>> GetAllChunks() = 0;
     virtual void PushChunk(const ChunkPosition& chunk_pos, std::shared_ptr<IChunk<T>> chunk) = 0;
 };
 

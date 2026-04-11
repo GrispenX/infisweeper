@@ -37,11 +37,37 @@ public:
         CellPosition cell_pos;
     };
 
+    static constexpr int ID = 1;
+
     static std::vector<CellPosition> GetAllCellPositions(const ChunkPosition& pos);
 
     static std::vector<MinefieldPosition> GetNeighboursPositions(const MinefieldPosition& pos);
 
     static constexpr int size = 10;
+};
+
+template<>
+struct std::hash<SquareGeometry::ChunkPosition>
+{
+    size_t operator()(const SquareGeometry::ChunkPosition& pos) const
+    {
+        size_t seed = 0;
+        HashCombine(seed, pos.row);
+        HashCombine(seed, pos.col);
+        return seed;
+    }
+};
+
+template<>
+struct std::hash<SquareGeometry::CellPosition>
+{
+    size_t operator()(const SquareGeometry::CellPosition& pos) const
+    {
+        size_t seed = 0;
+        HashCombine(seed, pos.row);
+        HashCombine(seed, pos.col);
+        return seed;
+    }
 };
 
 #endif // INCLUDE_GAME_GEOMETRIES_H_

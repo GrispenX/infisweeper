@@ -20,6 +20,8 @@ concept Geometry = requires
     { minefield_pos.chunk_pos } -> std::convertible_to<typename T::ChunkPosition>;
     { minefield_pos.cell_pos } -> std::convertible_to<typename T::CellPosition>;
 
+    { T::ID } -> std::convertible_to<int>;
+
     { T::GetAllCellPositions(chunk_pos) } -> std::same_as<std::vector<typename T::CellPosition>>;
     { T::GetNeighboursPositions(minefield_pos) } -> std::same_as<std::vector<typename T::MinefieldPosition>>;
 };
