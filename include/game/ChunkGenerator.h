@@ -19,12 +19,12 @@ public:
 
     std::unique_ptr<IChunk<T>> GenerateChunk(const ChunkPosition& pos) override
     {
-        std::vector<std::pair<CellPosition, std::unique_ptr<ICell>>> cells;
+        std::unordered_map<CellPosition, std::unique_ptr<ICell>> cells;
         for(const auto& cell_pos : T::GetAllCellPositions(pos))
         {
             double rand = (double)m_RNG() / m_RNG.max();
             CellType type = rand <= m_MineProbability ? CellType::MINE : CellType::SAFE;
-            cells.push_back(std::make_pair(cell_pos, std::make_unique<Cell>(type, CellState::CLOSED)));
+            cells[cell_pos] = std::make_unique<Cell>(type, CellState::CLOSED);
         }
         return m_ChunkFactory->CreateChunk(std::move(cells));
     }
