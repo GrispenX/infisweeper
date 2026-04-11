@@ -3,8 +3,8 @@
 
 #include "IChunk.h"
 #include "ICell.h"
-#include <vector>
 #include <memory>
+#include <unordered_map>
 
 template<Geometry T>
 class Chunk : public IChunk<T>
@@ -12,7 +12,7 @@ class Chunk : public IChunk<T>
 public:
     using CellPosition = typename T::CellPosition;
 
-    Chunk(std::vector<std::pair<CellPosition, std::unique_ptr<ICell>>> cells) :
+    Chunk(std::unordered_map<CellPosition, std::unique_ptr<ICell>> cells) :
         m_Cells(cells.size())
     {
         for(auto& [pos, cell] : cells)

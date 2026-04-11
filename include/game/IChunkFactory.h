@@ -4,7 +4,7 @@
 #include "game/GeometryConcept.h"
 #include "game/IChunk.h"
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 template<Geometry T>
 class IChunkFactory
@@ -14,7 +14,7 @@ public:
 
     virtual ~IChunkFactory() = default;
 
-    virtual std::unique_ptr<IChunk<T>> CreateChunk(std::vector<std::pair<CellPosition, std::unique_ptr<ICell>>> cells) = 0;
+    virtual std::unique_ptr<IChunk<T>> CreateChunk(std::unordered_map<CellPosition, std::unique_ptr<ICell>> cells) = 0;
 };
 
 #endif // INCLUDE_GAME_ICHUNKFACTORY_H_
