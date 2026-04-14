@@ -20,13 +20,10 @@ public:
         m_FilePath(file_path),
         m_ChunkFactory(std::move(chunk_factory))
     {
-        bool file_exists = std::filesystem::exists(m_FilePath);
-
-        m_File.open(m_FilePath, std::ios::binary | std::ios::in | std::ios::out);
-
-        if(file_exists)
+        if(std::filesystem::exists(m_FilePath))
         {
             // Validate header
+            m_File.open(m_FilePath, std::ios::binary | std::ios::in | std::ios::out);
             m_File.seekg(0, std::ios::beg);
             Header header;
             ReadBinary(m_File, &header);
@@ -47,10 +44,13 @@ public:
         }
         else
         {
-            m_File.seekp(0, std::ios::beg);
+            std::ofstream file(m_FilePath, std::ios::binary);
+            file.seekp(0, std::ios::beg);
             Header header;
-            WriteBinary(m_File, &header);
-        }        
+            WriteBinary(file, &header);
+            file.close();
+            m_File.open(m_FilePath, std::ios::binary | std::ios::in | std::ios::out);
+        }
     }
 
     ~ChunkFileStorage()
