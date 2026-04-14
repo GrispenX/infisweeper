@@ -3,7 +3,9 @@
 
 enum class TextureID
 {
-    SQUARE_CELL
+    SQUARE_CELL,
+    EQUILATERAL_TRIANGLE,
+    FLAG
 };
 
 enum class FontID

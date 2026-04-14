@@ -1,13 +1,14 @@
 #ifndef INCLUDE_UI_VIEWDATA_H_
 #define INCLUDE_UI_VIEWDATA_H_
 
-#include "game/PlainPosition.h"
+#include "UI/PlainPosition.h"
 #include "game/ICell.h"
 #include <vector>
 
 enum class CellShape
 {
-    SQUARE
+    SQUARE,
+    EQUILATERAL_TRIANGLE
 };
 
 struct CellViewData
