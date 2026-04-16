@@ -67,7 +67,8 @@ void GameView::Update()
 
 void GameView::DrawCell(const CellViewData& cell_data)
 {
-    Texture cell_texture = m_AssetManager->GetTexture(TextureID::SQUARE_CELL); // TEMP
+    Texture cell_texture = cell_data.shape == CellShape::SQUARE ? m_AssetManager->GetTexture(TextureID::SQUARE_CELL) : 
+                                                                  m_AssetManager->GetTexture(TextureID::EQUILATERAL_TRIANGLE);
     Font cell_font = m_AssetManager->GetFont(FontID::DEFAULT); // TEMP
     Vector2 screen_pos = PlainToScreen(cell_data.center_pos);
 
@@ -90,7 +91,7 @@ void GameView::DrawCell(const CellViewData& cell_data)
         .y = dest.height / 2.0f
     };
 
-    Color tint = cell_data.state == CellState::OPENED ? Color{255, 255, 255, 255} : Color{150, 150, 150, 255}; // TEMP
+    Color tint = cell_data.state == CellState::OPENED ? Color{200, 200, 200, 255} : Color{100, 100, 100, 255}; // TEMP
 
     DrawTexturePro(cell_texture, source, dest, origin, cell_data.rotation, tint);
 
@@ -99,7 +100,15 @@ void GameView::DrawCell(const CellViewData& cell_data)
         std::string text = std::to_string(cell_data.mines_around);
         float font_size = 0.5f * (float)m_Zoom;
         Vector2 text_size = MeasureTextEx(cell_font, text.c_str(), font_size, 0.5f);
-        DrawTextPro(cell_font, std::to_string(cell_data.mines_around).c_str(), screen_pos, {text_size.x / 2.0f, text_size.y / 2.0f}, cell_data.rotation, font_size, 0.5f, BLACK);
+        DrawTextPro(cell_font, std::to_string(cell_data.mines_around).c_str(), screen_pos, {text_size.x / 2.0f, text_size.y / 2.0f}, 0.0f, font_size, 0.5f, BLACK);
+    }
+
+    if(cell_data.state == CellState::FLAGGED)
+    {
+        Texture flag_texture = m_AssetManager->GetTexture(TextureID::FLAG);
+        source.width = flag_texture.width;
+        source.height = flag_texture.height;
+        DrawTexturePro(flag_texture, source, dest, origin, 0, WHITE);
     }
 }
 

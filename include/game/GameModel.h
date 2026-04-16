@@ -19,7 +19,7 @@ public:
         m_ChunkGenerator(std::move(chunk_generator)),
         m_ChunkStorage(std::move(chunk_storage))
         {
-            m_IsStarted = false;
+            m_IsStarted = m_ChunkStorage->GetAllChunks().size() > 1;
         }
 
     SweepResult Sweep(const MinefieldPosition& pos) override
