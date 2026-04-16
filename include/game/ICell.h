@@ -35,7 +35,7 @@ enum class CellType
 class ICell
 {
 public:
-    ~ICell() = default;
+    virtual ~ICell() = default;
 
     virtual SweepResult Sweep() = 0;
     virtual FlagResult Flag() = 0;

@@ -1,8 +1,11 @@
+add_subdirectory(GameScreen)
+
 add_library(UI_lib
-    GameScreen.cpp
-    GameView.cpp
     AssetManager.cpp
-    PlainPosition.cpp
+)
+
+target_link_libraries(UI_lib
+    GameScreen_lib
 )
 
 target_include_directories(UI_lib PUBLIC

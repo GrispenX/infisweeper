@@ -6,7 +6,7 @@
 class IScreen
 {
 public:
-    ~IScreen() = default;
+    virtual ~IScreen() = default;
 
     virtual std::unique_ptr<IScreen> Update() = 0;
 };

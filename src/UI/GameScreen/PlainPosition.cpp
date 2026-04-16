@@ -1,4 +1,4 @@
-#include "UI/PlainPosition.h"
+#include "UI/GameScreen/PlainPosition.h"
 
 PlainPosition PlainPosition::operator+(const PlainPosition& other) const
 {

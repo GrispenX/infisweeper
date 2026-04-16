@@ -1,12 +1,12 @@
 #ifndef INCLUDE_UI_IGAMEVIEWOBSERVER_H_
 #define INCLUDE_UI_IGAMEVIEWOBSERVER_H_
 
-#include "UI/PlainPosition.h"
+#include "UI/GameScreen/PlainPosition.h"
 
 class IGameViewObserver
 {
 public:
-    ~IGameViewObserver() = default;
+    virtual ~IGameViewObserver() = default;
 
     virtual void OnMinefieldLeftClick(const PlainPosition& pos) = 0;
     virtual void OnMinefieldRightClick(const PlainPosition& pos) = 0;

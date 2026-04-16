@@ -1,13 +1,13 @@
 #ifndef INCLUDE_UI_IGAMEVIEW_H_
 #define INCLUDE_UI_IGAMEVIEW_H_
 
-#include "UI/ViewData.h"
-#include "UI/IGameViewObserver.h"
+#include "UI/GameScreen/ViewData.h"
+#include "UI/GameScreen/IGameViewObserver.h"
 
 class IGameView
 {
 public:
-    ~IGameView() = default;
+    virtual ~IGameView() = default;
 
     virtual std::pair<PlainPosition, PlainPosition> GetVisibleMinefieldCorners() = 0;
     virtual void Update() = 0;

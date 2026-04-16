@@ -1,15 +1,14 @@
 #ifndef INCLUDE_GAMEVIEW_H_
 #define INCLUDE_GAMEVIEW_H_
 
-#include "UI/IGameView.h"
-#include "UI/IAssetManager.h"
+#include "UI/GameScreen/IGameView.h"
 #include <vector>
 #include <raylib.h>
 
 class GameView : public IGameView
 {
 public:
-    GameView(std::shared_ptr<IAssetManager> asset_manager);
+    GameView();
 
     std::pair<PlainPosition, PlainPosition> GetVisibleMinefieldCorners() override;
     void Update() override;
@@ -23,8 +22,6 @@ private:
     std::vector<IGameViewObserver*> m_Observers;
     PlainPosition m_Position;
     double m_Zoom;
-
-    std::shared_ptr<IAssetManager> m_AssetManager;
 
     Vector2 PlainToScreen(const PlainPosition& pos);
     PlainPosition ScreenToPlain(const Vector2& pos);

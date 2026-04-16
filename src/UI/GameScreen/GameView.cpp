@@ -1,11 +1,10 @@
-#include "UI/GameView.h"
-#include "UI/AssetIDs.h"
+#include "UI/GameScreen/GameView.h"
+#include "UI/AssetManager.h"
 #include <iostream>
 
-GameView::GameView(std::shared_ptr<IAssetManager> asset_manager) :
+GameView::GameView() :
     m_Position({0, 0}),
-    m_Zoom(100.0),
-    m_AssetManager(asset_manager)
+    m_Zoom(100.0)
 {}
 
 std::pair<PlainPosition, PlainPosition> GameView::GetVisibleMinefieldCorners()
@@ -67,9 +66,9 @@ void GameView::Update()
 
 void GameView::DrawCell(const CellViewData& cell_data)
 {
-    Texture cell_texture = cell_data.shape == CellShape::SQUARE ? m_AssetManager->GetTexture(TextureID::SQUARE_CELL) : 
-                                                                  m_AssetManager->GetTexture(TextureID::EQUILATERAL_TRIANGLE);
-    Font cell_font = m_AssetManager->GetFont(FontID::DEFAULT); // TEMP
+    Texture cell_texture = cell_data.shape == CellShape::SQUARE ? AssetManager::Instance().GetTexture(TextureID::SQUARE_CELL) :
+                                                                  AssetManager::Instance().GetTexture(TextureID::EQUILATERAL_TRIANGLE);
+    Font cell_font = AssetManager::Instance().GetFont(FontID::DEFAULT, 100); // TEMP
     Vector2 screen_pos = PlainToScreen(cell_data.center_pos);
 
     Rectangle source {
@@ -105,7 +104,7 @@ void GameView::DrawCell(const CellViewData& cell_data)
 
     if(cell_data.state == CellState::FLAGGED)
     {
-        Texture flag_texture = m_AssetManager->GetTexture(TextureID::FLAG);
+        Texture flag_texture = AssetManager::Instance().GetTexture(TextureID::FLAG);
         source.width = flag_texture.width;
         source.height = flag_texture.height;
         DrawTexturePro(flag_texture, source, dest, origin, 0, WHITE);

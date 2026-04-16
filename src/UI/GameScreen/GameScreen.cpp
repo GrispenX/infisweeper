@@ -1,4 +1,4 @@
-#include "UI/GameScreen.h"
+#include "UI/GameScreen/GameScreen.h"
 #include "game/Geometries.h"
 #include <cmath>
 

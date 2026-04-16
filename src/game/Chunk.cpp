@@ -6,3 +6,9 @@ size_t Chunk<SquareGeometry>::CellPosToIndex(const SquareGeometry::CellPosition&
 {
     return pos.row * 10 + pos.col;
 }
+
+template<>
+size_t Chunk<TriHexGeometry>::CellPosToIndex(const CellPosition& pos)
+{
+    
+}

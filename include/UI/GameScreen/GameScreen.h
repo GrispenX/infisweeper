@@ -3,8 +3,8 @@
 
 #include "game/GeometryConcept.h"
 #include "UI/IScreen.h"
-#include "UI/IGameView.h"
-#include "UI/IGameViewObserver.h"
+#include "UI/GameScreen/IGameView.h"
+#include "UI/GameScreen/IGameViewObserver.h"
 #include "game/IGameModel.h"
 
 template<Geometry T>
