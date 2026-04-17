@@ -1,13 +1,8 @@
+list(APPEND SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/AssetManager.cpp
+)
+
+add_subdirectory(MainMenuScreen)
 add_subdirectory(GameScreen)
 
-add_library(UI_lib
-    AssetManager.cpp
-)
-
-target_link_libraries(UI_lib
-    GameScreen_lib
-)
-
-target_include_directories(UI_lib PUBLIC
-    ${CMAKE_SOURCE_DIR}/include
-)
+set(SOURCES ${SOURCES} PARENT_SCOPE)

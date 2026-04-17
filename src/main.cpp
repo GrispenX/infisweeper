@@ -1,24 +1,18 @@
-#include <iostream>
+#include <raylib.h>
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+
 #include <unordered_map>
-#include "game/GameModel.h"
-#include "game/ChunkGenerator.h"
-#include "game/Geometries.h"
-#include "game/ChunkFactory.h"
-#include "game/ChunkFileStorage.h"
-#include "game/ChunkStorageProxy.h"
 
 #include "UI/AssetManager.h"
-#include "UI/GameScreen/GameView.h"
-#include "UI/GameScreen/GameScreen.h"
+#include "UI/MainMenuScreen/MainMenuView.h"
+#include "UI/MainMenuScreen/MainMenuScreen.h"
 
-#include <raylib.h>
 
 int main()
 {
-    InitWindow(1920, 1080, "Test");
-    SetTargetFPS(75);
-
-    using G = TriHexGeometry;
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    InitWindow(800, 800, "Test");
 
     std::unordered_map<TextureID, std::filesystem::path> textures {
         {TextureID::SQUARE_CELL, "/home/grispenx/projects/infisweeper/assets/Square.png"},
@@ -30,18 +24,6 @@ int main()
         {FontID::DEFAULT, "/home/grispenx/projects/infisweeper/assets/SpaceMono-Bold.ttf"}
     };
 
-
-
-    std::unique_ptr<IChunkGenerator<G>> generator = std::make_unique<ChunkGenerator<G>>(std::make_unique<ChunkFactory<G>>(), 0.15);
-    std::unique_ptr<IChunkStorage<G>> storage = std::make_unique<ChunkStorageProxy<G>>(
-        std::make_unique<ChunkFileStorage<G>>(
-            "save_file",
-            std::make_unique<ChunkFactory<G>>()
-        )
-    );
-    
-    std::unique_ptr<IGameModel<G>> model = std::make_unique<GameModel<G>>(std::move(generator), std::move(storage));
-
     for(auto [id, path] : textures)
     {
         AssetManager::Instance().SetTexturePath(id, path);
@@ -52,13 +34,16 @@ int main()
         AssetManager::Instance().SetFontPath(id, path);
     }
 
-    std::unique_ptr<IGameView> view = std::make_unique<GameView>();
-    GameScreen<G> screen(std::move(view), std::move(model));
+    std::unique_ptr<IScreen> screen = std::make_unique<MainMenuScreen>(
+        std::make_unique<MainMenuView>()
+    );
 
-
+    GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
+    GuiSetFont(AssetManager::Instance().GetFont(FontID::DEFAULT, 30));
 
     while(!WindowShouldClose())
     {
-        screen.Update();
+        std::unique_ptr<IScreen> next = screen->Update();
+        if(next) screen = std::move(next);
     }
 }

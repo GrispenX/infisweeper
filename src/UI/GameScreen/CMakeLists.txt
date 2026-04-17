@@ -1,9 +1,7 @@
-add_library(GameScreen_lib
-    GameScreen.cpp
-    GameView.cpp
-    PlainPosition.cpp
+list(APPEND SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/GameView.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/GameScreen.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/PlainPosition.cpp
 )
 
-target_include_directories(GameScreen_lib PUBLIC
-    ${CMAKE_SOURCE_DIR}/include
-)
+set(SOURCES ${SOURCES} PARENT_SCOPE)

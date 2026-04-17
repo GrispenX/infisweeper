@@ -1,0 +1,6 @@
+list(APPEND SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/MainMenuView.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/MainMenuScreen.cpp
+)
+
+set(SOURCES ${SOURCES} PARENT_SCOPE)

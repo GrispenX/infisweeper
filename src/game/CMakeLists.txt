@@ -1,9 +1,6 @@
-add_library(game_lib
-    Geometries.cpp
-    Cell.cpp
-    # Chunk.cpp
+list(APPEND SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/Cell.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Geometries.cpp
 )
 
-target_include_directories(game_lib PUBLIC
-    ${CMAKE_SOURCE_DIR}/include
-)
+set(SOURCES ${SOURCES} PARENT_SCOPE)
