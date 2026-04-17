@@ -23,7 +23,7 @@ std::unique_ptr<IScreen> MainMenuScreen::Update()
 
 void MainMenuScreen::OnMainMenuButtonClick(MainMenuButtons button)
 {
-    using G = SquareGeometry;
+    using G = TriHexGeometry;
 
     m_NextScreen = std::make_unique<GameScreen<G>>(
         std::make_unique<GameView>(),

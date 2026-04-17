@@ -127,7 +127,7 @@ void GameView::DrawChunk(const ChunkViewData& chunk_data)
 void GameView::Draw(const std::vector<ChunkViewData>& data)
 {
     BeginDrawing();
-    ClearBackground(DARKGREEN);
+    ClearBackground(DARKGRAY);
 
     for(const auto& chunk : data)
     {

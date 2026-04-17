@@ -4,9 +4,13 @@ project(Infisweeper LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include(CTest)
+
 set(SOURCES)
+set(GAME_SOURCES)
 
 add_subdirectory(src)
+add_subdirectory(tests)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
