@@ -1,0 +1,6 @@
+list(APPEND SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/LoadGameView.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/LoadGameScreen.cpp
+)
+
+set(SOURCES ${SOURCES} PARENT_SCOPE)
