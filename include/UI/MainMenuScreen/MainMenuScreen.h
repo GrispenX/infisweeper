@@ -10,7 +10,8 @@ public:
     MainMenuScreen(std::unique_ptr<IMainMenuView> view);
 
     std::unique_ptr<IScreen> Update() override;
-    void OnMainMenuButtonClick(MainMenuButtons button) override;
+    void OnNewGameButton() override;
+    void OnLoadGameButton() override;
 
 private:
     std::unique_ptr<IMainMenuView> m_View;

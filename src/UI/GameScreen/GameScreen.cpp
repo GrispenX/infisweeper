@@ -42,9 +42,9 @@ double GameScreen<SquareGeometry>::GetCellRotation(const MinefieldPosition& pos)
 }
 
 template<>
-CellShape GameScreen<SquareGeometry>::GetCellShape(const MinefieldPosition& pos)
+TextureID GameScreen<SquareGeometry>::GetCellTexture(const MinefieldPosition& pos)
 {
-    return CellShape::SQUARE;
+    return TextureID::SQUARE_CELL;
 }
 
 template<>
@@ -175,9 +175,9 @@ double GameScreen<TriHexGeometry>::GetCellRotation(const MinefieldPosition& pos)
 }
 
 template<>
-CellShape GameScreen<TriHexGeometry>::GetCellShape(const MinefieldPosition& pos)
+TextureID GameScreen<TriHexGeometry>::GetCellTexture(const MinefieldPosition& pos)
 {
-    return CellShape::EQUILATERAL_TRIANGLE;
+    return TextureID::EQUILATERAL_TRIANGLE;
 }
 
 template<>

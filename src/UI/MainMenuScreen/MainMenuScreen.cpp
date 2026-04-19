@@ -1,13 +1,10 @@
 #include "UI/MainMenuScreen/MainMenuScreen.h"
 
-#include "UI/GameScreen/GameScreen.h"
-#include "UI/GameScreen/GameView.h"
-#include "game/GameModel.h"
-#include "game/ChunkGenerator.h"
-#include "game/ChunkFactory.h"
-#include "game/ChunkStorageProxy.h"
-#include "game/ChunkFileStorage.h"
-#include "game/Geometries.h"
+#include "UI/NewGameScreen/NewGameScreen.h"
+#include "UI/NewGameScreen/NewGameView.h"
+
+#include "UI/LoadGameScreen/LoadGameScreen.h"
+#include "UI/LoadGameScreen/LoadGameView.h"
 
 MainMenuScreen::MainMenuScreen(std::unique_ptr<IMainMenuView> view) :
     m_View(std::move(view))
@@ -21,23 +18,12 @@ std::unique_ptr<IScreen> MainMenuScreen::Update()
     return std::move(m_NextScreen);
 }
 
-void MainMenuScreen::OnMainMenuButtonClick(MainMenuButtons button)
+void MainMenuScreen::OnNewGameButton()
 {
-    using G = TriHexGeometry;
+    m_NextScreen = std::make_unique<NewGameScreen>(std::make_unique<NewGameView>());
+}
 
-    m_NextScreen = std::make_unique<GameScreen<G>>(
-        std::make_unique<GameView>(),
-        std::make_unique<GameModel<G>>(
-            std::make_unique<ChunkGenerator<G>>(
-                std::make_unique<ChunkFactory<G>>(),
-                0.2
-            ),
-            std::make_unique<ChunkStorageProxy<G>>(
-                std::make_unique<ChunkFileStorage<G>>(
-                    "save_file",
-                    std::make_unique<ChunkFactory<G>>()
-                )
-            )
-        )
-    );
+void MainMenuScreen::OnLoadGameButton()
+{
+    m_NextScreen = std::make_unique<LoadGameScreen>(std::make_unique<LoadGameView>());
 }

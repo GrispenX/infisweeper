@@ -23,17 +23,24 @@ void GameView::Update()
     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
     {
         PlainPosition mouse_pos = ScreenToPlain(GetMousePosition());
-        for(auto& observer : m_Observers)
+        for(auto observer : m_Observers)
         {
-            observer->OnMinefieldLeftClick(mouse_pos);
+            observer->OnSweep(mouse_pos);
         }
     }
     if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
     {
         PlainPosition mouse_pos = ScreenToPlain(GetMousePosition());
-        for(auto& observer : m_Observers)
+        for(auto observer : m_Observers)
         {
-            observer->OnMinefieldRightClick(mouse_pos);
+            observer->OnFlag(mouse_pos);
+        }
+    }
+    if(IsMouseButtonPressed(MOUSE_BUTTON_SIDE))
+    {
+        for(auto observer : m_Observers)
+        {
+            observer->OnBackButton();
         }
     }
 
@@ -66,9 +73,8 @@ void GameView::Update()
 
 void GameView::DrawCell(const CellViewData& cell_data)
 {
-    Texture cell_texture = cell_data.shape == CellShape::SQUARE ? AssetManager::Instance().GetTexture(TextureID::SQUARE_CELL) :
-                                                                  AssetManager::Instance().GetTexture(TextureID::EQUILATERAL_TRIANGLE);
-    Font cell_font = AssetManager::Instance().GetFont(FontID::DEFAULT, 100); // TEMP
+    Texture cell_texture = AssetManager::Instance().GetTexture(cell_data.texture_id);
+    Font cell_font = AssetManager::Instance().GetFont(FontID::DEFAULT, 100);
     Vector2 screen_pos = PlainToScreen(cell_data.center_pos);
 
     Rectangle source {
@@ -90,7 +96,7 @@ void GameView::DrawCell(const CellViewData& cell_data)
         .y = dest.height / 2.0f
     };
 
-    Color tint = cell_data.state == CellState::OPENED ? Color{200, 200, 200, 255} : Color{100, 100, 100, 255}; // TEMP
+    Color tint = cell_data.state == CellState::OPENED ? Color{200, 200, 200, 255} : Color{100, 100, 100, 255};
 
     DrawTexturePro(cell_texture, source, dest, origin, cell_data.rotation, tint);
 
@@ -107,7 +113,7 @@ void GameView::DrawCell(const CellViewData& cell_data)
         Texture flag_texture = AssetManager::Instance().GetTexture(TextureID::FLAG);
         source.width = flag_texture.width;
         source.height = flag_texture.height;
-        DrawTexturePro(flag_texture, source, dest, origin, 0, WHITE);
+        DrawTexturePro(flag_texture, source, dest, origin, 0, {200, 0, 0, 255});
     }
 }
 
@@ -120,7 +126,7 @@ void GameView::DrawChunk(const ChunkViewData& chunk_data)
 
     for(const auto& boundary : chunk_data.boundaries)
     {
-        DrawLineEx(PlainToScreen(boundary.first), PlainToScreen(boundary.second), 4, RED);
+        DrawLineEx(PlainToScreen(boundary.first), PlainToScreen(boundary.second), 0.06 * m_Zoom, RED);
     }
 }
 
@@ -133,8 +139,6 @@ void GameView::Draw(const std::vector<ChunkViewData>& data)
     {
         DrawChunk(chunk);
     }
-
-    DrawFPS(10, 10);
 
     EndDrawing();
 }

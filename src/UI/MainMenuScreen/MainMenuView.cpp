@@ -1,46 +1,32 @@
 #include "UI/MainMenuScreen/MainMenuView.h"
-#include <raylib.h>
-#include "raygui.h"
 #include "UI/AssetManager.h"
 
 void MainMenuView::Update()
 {
-    const float screen_width = (float)GetScreenWidth();
-    const float screen_height = (float)GetScreenHeight();
-
-    Rectangle new_game_button {
-        .x = screen_width / 2.0f - 100.0f,
-        .y = screen_height / 2.0f - 40.0f,
-        .width = 200.0f,
-        .height = 40.0f
-    };
-
-    Rectangle load_game_button {
-        .x = screen_width / 2.0f - 100.0f,
-        .y = screen_height / 2.0f + 40.0f,
-        .width = 200.0f,
-        .height = 40.0f
-    };
+    ResolveUILayout();
 
     BeginDrawing();
-    ClearBackground(GRAY);
+    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
-    Font font = AssetManager::Instance().GetFont(FontID::DEFAULT, 100);
-    const char* text = "INFISWEEPER";
-    Vector2 text_size = MeasureTextEx(font, text, 100, 1);
+    Texture logo = AssetManager::Instance().GetTexture(TextureID::MAIN_MENU_LOGO);
 
-    DrawTextPro(
-        AssetManager::Instance().GetFont(FontID::DEFAULT, 100),
-        "INFISWEEPER",
-        {screen_width / 2.0f, screen_height / 2.0f - 100.0f},
-        {text_size.x / 2.0f, text_size.y /2.0f},
-        0.0f,
-        100,
-        1,
-        BLACK
-    );
-    if(GuiButton(new_game_button, "New game")) PingObservers(MainMenuButtons::NEW_GAME);
-    if(GuiButton(load_game_button, "Load game")) PingObservers(MainMenuButtons::LOAD_GAME);
+    DrawTexturePro(logo, {0, 0, (float)logo.width, (float)logo.height}, m_LogoBounds, {0, 0}, 0, BLACK);
+
+    if(GuiButton(m_NewButtonBounds, "New game"))
+    {
+        for(auto observer : m_Observers)
+        {
+            observer->OnNewGameButton();
+        }
+    }
+
+    if(GuiButton(m_LoadButtonBounds, "Load game"))
+    {
+        for(auto observer : m_Observers)
+        {
+            observer->OnLoadGameButton();
+        }
+    }
 
     EndDrawing();
 }
@@ -50,10 +36,29 @@ void MainMenuView::Subscribe(IMainMenuViewObserver* observer)
     m_Observers.push_back(observer);
 }
 
-void MainMenuView::PingObservers(MainMenuButtons button)
+void MainMenuView::ResolveUILayout()
 {
-    for(auto& observer : m_Observers)
-    {
-        observer->OnMainMenuButtonClick(button);
-    }
+    int screen_width = GetScreenWidth();
+    int screen_height = GetScreenHeight();
+
+    Texture logo = AssetManager::Instance().GetTexture(TextureID::MAIN_MENU_LOGO);
+    m_LogoBounds.height = 150;
+    m_LogoBounds.width = logo.width * m_LogoBounds.height / logo.height;
+
+    static constexpr int gap = 50;
+    int text_size = GuiGetStyle(DEFAULT, TEXT_SIZE);
+    int y_start = (screen_height - 2 * text_size - 2 * gap - m_LogoBounds.height) / 2;
+
+    m_LogoBounds.x = (screen_width - m_LogoBounds.width) / 2;
+    m_LogoBounds.y = y_start;
+
+    m_NewButtonBounds.width = 200;
+    m_NewButtonBounds.height = text_size;
+    m_NewButtonBounds.x = (screen_width - m_NewButtonBounds.width) / 2;
+    m_NewButtonBounds.y = y_start + m_LogoBounds.height + gap;
+
+    m_LoadButtonBounds.width = 200;
+    m_LoadButtonBounds.height = text_size;
+    m_LoadButtonBounds.x = (screen_width - m_LoadButtonBounds.width) / 2;
+    m_LoadButtonBounds.y = m_NewButtonBounds.y + m_NewButtonBounds.height + gap;
 }

@@ -9,7 +9,8 @@ enum class TextureID
 {
     SQUARE_CELL,
     EQUILATERAL_TRIANGLE,
-    FLAG
+    FLAG,
+    MAIN_MENU_LOGO
 };
 
 enum class FontID

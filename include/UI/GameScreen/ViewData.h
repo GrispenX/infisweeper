@@ -3,20 +3,15 @@
 
 #include "UI/GameScreen/PlainPosition.h"
 #include "game/ICell.h"
+#include "UI/AssetManager.h"
 #include <vector>
-
-enum class CellShape
-{
-    SQUARE,
-    EQUILATERAL_TRIANGLE
-};
 
 struct CellViewData
 {
     PlainPosition center_pos;
     double size;
     double rotation;
-    CellShape shape;
+    TextureID texture_id;
 
     CellType type;
     CellState state;

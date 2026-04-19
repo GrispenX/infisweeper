@@ -1,6 +1,4 @@
-#include <raylib.h>
 #define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
 
 #include <unordered_map>
 
@@ -12,16 +10,17 @@
 int main()
 {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(800, 800, "Test");
+    InitWindow(1600, 800, "Test");
 
     std::unordered_map<TextureID, std::filesystem::path> textures {
         {TextureID::SQUARE_CELL, "/home/grispenx/projects/infisweeper/assets/Square.png"},
         {TextureID::EQUILATERAL_TRIANGLE, "/home/grispenx/projects/infisweeper/assets/Triangle.png"},
-        {TextureID::FLAG, "/home/grispenx/projects/infisweeper/assets/flag.png"}
+        {TextureID::FLAG, "/home/grispenx/projects/infisweeper/assets/flag.png"},
+        {TextureID::MAIN_MENU_LOGO, "/home/grispenx/projects/infisweeper/assets/logo.png"}
     };
 
     std::unordered_map<FontID, std::filesystem::path> fonts {
-        {FontID::DEFAULT, "/home/grispenx/projects/infisweeper/assets/SpaceMono-Bold.ttf"}
+        {FontID::DEFAULT, "/home/grispenx/projects/infisweeper/assets/Roboto-Regular.ttf"}
     };
 
     for(auto [id, path] : textures)

@@ -6,6 +6,10 @@
 #include "UI/GameScreen/IGameView.h"
 #include "UI/GameScreen/IGameViewObserver.h"
 #include "game/IGameModel.h"
+#include "UI/AssetManager.h"
+
+#include "UI/MainMenuScreen/MainMenuScreen.h"
+#include "UI/MainMenuScreen/MainMenuView.h"
 
 template<Geometry T>
 class GameScreen : public IScreen, public IGameViewObserver
@@ -40,28 +44,33 @@ public:
                 cell_view_data.center_pos = GetCellCenterPos(minefield_pos);
                 cell_view_data.size = GetCellSize(minefield_pos);
                 cell_view_data.rotation = GetCellRotation(minefield_pos);
-                cell_view_data.shape = GetCellShape(minefield_pos);
+                cell_view_data.texture_id = GetCellTexture(minefield_pos);
 
                 chunk_view_data.cells.push_back(cell_view_data);
             }
             chunks_view_data.push_back(chunk_view_data);
         }
         m_View->Draw(chunks_view_data);
-        return nullptr;
+        return std::move(m_NextScreen);
     }
 
-    void OnMinefieldLeftClick(const PlainPosition& pos) override
+    void OnSweep(const PlainPosition& pos) override
     {
         m_Model->Sweep(PlainToMinefield(pos));
     }
-    void OnMinefieldRightClick(const PlainPosition& pos) override
+    void OnFlag(const PlainPosition& pos) override
     {
         m_Model->Flag(PlainToMinefield(pos));
+    }
+    void OnBackButton() override
+    {
+        m_NextScreen = std::make_unique<MainMenuScreen>(std::make_unique<MainMenuView>());
     }
 
 private:
     std::unique_ptr<IGameView> m_View;
     std::unique_ptr<IGameModel<T>> m_Model;
+    std::unique_ptr<IScreen> m_NextScreen = nullptr;
 
     using CellPosition = typename T::CellPosition;
     using ChunkPosition = typename T::ChunkPosition;
@@ -71,7 +80,7 @@ private:
     PlainPosition GetCellCenterPos(const MinefieldPosition& pos);
     double GetCellSize(const MinefieldPosition& pos);
     double GetCellRotation(const MinefieldPosition& pos);
-    CellShape GetCellShape(const MinefieldPosition& pos);
+    TextureID GetCellTexture(const MinefieldPosition& pos);
     std::vector<ChunkPosition> GetChunksInRectangle(const PlainPosition& pos1, const PlainPosition& pos2);
     std::vector<std::pair<PlainPosition, PlainPosition>> GetChunkBoundaries(const ChunkPosition& pos);
 };
