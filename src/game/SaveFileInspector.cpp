@@ -38,6 +38,7 @@ Header SaveFileInspector::ReadHeader(std::filesystem::path file_path)
     file.close();
 
     if(memcmp(header.magic, correct_header.magic, sizeof(correct_header.magic))) throw std::runtime_error("Invalid magic");
+    if(header.geometry_id < 1 || header.geometry_id > 2) throw std::runtime_error("Invalid geometry");
 
     return header;
 }

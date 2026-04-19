@@ -16,7 +16,9 @@ void LoadGameView::Update()
     int text_size = GuiGetStyle(DEFAULT, TEXT_SIZE);
     for(const auto& [path, header] : m_SaveFiles)
     {
-        std::string geom = header.geometry_id == 1 ? "Square" : "Tri-Hex";
+        std::string geom;
+        if(header.geometry_id == 1) geom = "Square";
+        if(header.geometry_id == 2) geom = "Tri-Hex";
         Rectangle button_bounds {
             .x = m_FileSelectorView.x + m_FileSelectorScroll.x + 0.25f * m_FileSelectorEntrySize,
             .y = m_FileSelectorView.y + i * m_FileSelectorEntrySize + m_FileSelectorScroll.y + 0.25f * m_FileSelectorEntrySize,
@@ -55,7 +57,7 @@ void LoadGameView::Subscribe(ILoadGameViewObserver* observer)
 void LoadGameView::SetSaveFiles(std::unordered_map<std::filesystem::path, Header>& files)
 {
     m_SaveFiles = files;
-    m_SelectedPath = files.begin()->first;
+    m_SelectedPath = files.empty() ? "" : m_SaveFiles.begin()->first;
 }
 
 
