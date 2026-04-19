@@ -1,6 +1,7 @@
 set(GAME_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Cell.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Geometries.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/SaveFileInspector.cpp
 )
 
 list(APPEND SOURCES ${GAME_SOURCES})

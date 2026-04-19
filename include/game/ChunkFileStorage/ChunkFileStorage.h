@@ -4,6 +4,7 @@
 #include "game/IChunkStorage.h"
 #include "game/IChunkFactory.h"
 #include "game/Cell.h"
+#include "game/ChunkFileStorage/Header.h"
 #include <unordered_map>
 #include <filesystem>
 #include <fstream>
@@ -47,6 +48,7 @@ public:
             std::ofstream file(m_FilePath, std::ios::binary);
             file.seekp(0, std::ios::beg);
             Header header;
+            header.geometry_id = T::ID;
             WriteBinary(file, &header);
             file.close();
             m_File.open(m_FilePath, std::ios::binary | std::ios::in | std::ios::out);
@@ -126,15 +128,6 @@ private:
         stream.write(reinterpret_cast<char*>(buf), sizeof(U));
     }
 
-    struct Header
-    {
-        char magic[8] = "INFSWPR";
-        int version = 1;
-        int geometry_id = T::ID;
-        char reserved[256 - 8 - 2 * sizeof(int)];
-    };
-    static_assert(sizeof(Header) == 256);
-
     struct ChunkFileData
     {
         ChunkPosition pos;
@@ -168,6 +161,7 @@ private:
     void ValidateHeader(const Header& header)
     {
         Header correct_header;
+        correct_header.geometry_id = T::ID;
         if(memcmp(header.magic, correct_header.magic, sizeof(header.magic))) throw std::runtime_error("Invalid magic");
         if(header.version != correct_header.version) throw std::runtime_error("Invalid version");
         if(header.geometry_id != correct_header.geometry_id) throw std::runtime_error("Invalid geometry");
