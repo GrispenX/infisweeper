@@ -5,6 +5,7 @@ add_executable(${PROJECT_NAME}Tests
     ${CMAKE_CURRENT_SOURCE_DIR}/ChunkTest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/GameModelTest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/GeometriesTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ChunkFileStorageTest.cpp
     ${GAME_SOURCES}
 )
 

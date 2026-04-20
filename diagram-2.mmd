@@ -1,0 +1,235 @@
+---
+config:
+  layout: dagre
+  theme: neutral
+---
+classDiagram
+direction TB
+	namespace Game {
+        class PlainPosition {
+	        +double x
+	        +double y
+        }
+
+        class ChunkViewData {
+	        +CellViewData[] cells
+	        +pair~PlainPosition, PlainPosition~[] boundaries
+        }
+
+        class CellViewData {
+	        +PlainPosition center_pos
+	        +double size
+	        +double rotation
+	        +TextureID asset_id
+	        +CellType type
+	        +CellState state
+	        int mines_around
+        }
+
+        class IGameView {
+	        +pair~PlainPosition, PlainPosition~ GetVisibleMinefieldCorners()
+	        +void Update()
+	        +void Draw(ChunkViewData[] chunks)
+	        +void Subscribe(IGameViewObserver observer)
+        }
+
+        class IGameModel {
+	        +SweepResult Sweep(MinefieldPosition pos)
+	        +FlagResult Flag(MinefieldPosition pos)
+	        +ChunkData GetChunk(ChunkPosition pos)
+        }
+
+        class IGameViewObserver {
+	        +void OnSweep(PlainPosition pos)
+	        +void OnFlag(PlainPosition pos)
+        }
+
+        class GameView {
+	        -IGameViewObserver[] m_Observers
+	        -PlainPosition m_CameraPosition
+	        -double m_CameraZoom
+	        +pair~PlainPosition, PlainPosition~ GetVisibleMinefieldCorners()
+	        +void Update()
+	        +void Draw(ChunkViewData[] chunks)
+	        +void Subscribe(IGameViewObserver observer)
+	        -void DrawCell(CellViewData cell_data)
+	        -void DrawChunk(ChunkViewData chunk_data)
+	        -Vector2 PlainToScreen(PlainPosition pos)
+	        -PlainPosition ScreenToPlain(Vector2 pos)
+        }
+
+        class GameScreen {
+	        -IGameView m_View
+	        -IGameModel m_Model
+	        +IScreen Update()
+	        +void OnSweep(PlainPosition pos)
+	        +void OnFlag(PlainPosition pos)
+	        -MinefieldPosition PlainToMinefield(PlainPosition pos)
+	        -PlainPosition GetCellCenter(MinefieldPosition pos)
+	        -double GetCellSize(MinefieldPosition pos)
+	        -double GetCellRotation(MinefieldPosition pos)
+	        -TextureID GetCellTextureID(MinefieldPosition pos)
+	        -ChunkPosition[] GetChunksInRectangle(PlainPosition p1, PlainPosition p2)
+	        -pair~PlainPosition, PlainPosition~[] GetChunkBoundaries(ChunkPosition pos)
+        }
+
+	}
+	namespace MainMenu {
+        class IMainMenuViewObserver {
+	        +void OnNewGameButton()
+	        +void OnLoadGameButton()
+        }
+
+        class IMainMenuView {
+	        +void Update()
+	        +void Subscribe(IMainMenuViewObserver observer)
+        }
+
+        class MainMenuView {
+	        -IMainMenuViewObserver[] m_Observers
+	        +void Update()
+	        +void Subscribe(IMainMenuViewObserver observer)
+            -void ResolveUILayout()
+        }
+
+        class MainMenuScreen {
+	        -IMainMenuView
+            -IScreen m_NextScreen
+	        +IScreen Update()
+	        +void OnNewGameButton()
+	        +void OnLoadGameButton()
+        }
+
+	}
+	namespace NewGame {
+        class INewGameView {
+	        +void Update()
+	        +void Subscribe(INewGameViewObserver observer)
+        }
+
+        class NewGameView {
+	        -INewGameViewObserver[] m_Observers
+	        +void Update()
+	        +void Subscribe(INewGameViewObserver observer)
+            +void ResolveUILayout()
+        }
+
+        class INewGameViewObserver {
+	        +void OnCreateGameButton(string save_file_name, int geometry_id)
+        }
+
+        class NewGameScreen {
+	        -INewGameView m_View
+            -IScreen m_NextScreen
+	        +IScreen Update()
+	        +void OnCreateGameButton(string save_file_name, int geometry_id)
+        }
+
+	}
+	namespace LoadGame {
+        class ILoadGameViewObserver {
+            +void OnBackButton()
+            +void OnLoadButton(filesystem::path selected_file)
+        }
+
+        class LoadGameScreen {
+	        -ILoadGameView m_View
+            -IScreen m_NextScreen
+	        +IScreen Update()
+            +void OnBackButton()
+            +void OnLoadButton(filesystem::path selected_file)
+        }
+
+        class ILoadGameView {
+	        +void Update()
+	        +void Subscribe(ILoadGameViewObhserver observer)
+            +void SetSaveFiles(unordered_map~filesystem::path, Header~ files)
+        }
+
+        class LoagGameView {
+	        -ILoadGameViewObserver[] m_Observers
+	        +void Update()
+	        +void Subscribe(ILoadGameViewObhserver observer)
+            +void SetSaveFiles(unordered_map~filesystem::path, Header~ files)
+            -void ResolveUILayout()
+        }
+
+	}
+    class AssetManager {
+	    -unordered_map~TextureID, filesystem::path~ m_TexturePathes
+	    -unordered_map~FontID, filesystem::path~ m_FontPathes
+	    -unordered_map~TextureID, Texture~ m_LoadedTextures
+	    -unordered_map~FontID, unordered_map~int, Font~~ m_LoadedFonts
+	    -Texture m_ErrorTexture
+	    +static AssetManager Instance()
+	    +Texture GetTexture(TextureID id)
+	    +Font GetFont(FontID id)
+	    +void SetTexturePath(TextureID id, filesystem::path path)
+	    +void SetFontPath(FontID id, filesystem::path path)
+    }
+
+    class IScreen {
+	    +IScreen Update()
+    }
+
+    class FontID {
+	    +DEFAULT
+    }
+
+    class TextureID {
+	    +SQUARE_CELL
+	    +EQUILATERAL_TRIANGLE_CELL
+	    +FLAG
+    }
+
+    class Application {
+	    -IScreen m_CurrentScreen
+	    +Application(IScreen initial_screen)
+	    +void Run()
+    }
+
+	<<struct>> PlainPosition
+	<<struct>> ChunkViewData
+	<<struct>> CellViewData
+	<<Interface>> IGameView
+	<<Interface>> IGameModel
+	<<Interface>> IGameViewObserver
+	<<Interface>> IMainMenuViewObserver
+	<<Interface>> IMainMenuView
+	<<Interface>> INewGameView
+	<<Interface>> INewGameViewObserver
+	<<Interface>> ILoadGameViewObserver
+	<<Interface>> ILoadGameView
+	<<Interface>> IScreen
+	<<enum>> FontID
+	<<enum>> TextureID
+
+    AssetManager --> FontID
+    AssetManager --> TextureID
+    GameScreen ..|> IScreen
+    GameScreen ..|> IGameViewObserver
+    GameScreen --o IGameView
+    GameScreen --o IGameModel
+    IGameView o-- GameView
+    IGameViewObserver <|.. GameView
+    GameView --> AssetManager
+    ChunkViewData --* CellViewData
+    MainMenuScreen --o IMainMenuView
+    MainMenuScreen ..|> IScreen
+    MainMenuScreen ..|> IMainMenuViewObserver
+    IMainMenuView <|.. MainMenuView
+    IMainMenuViewObserver o-- MainMenuView
+    MainMenuView --> AssetManager
+    NewGameScreen ..|> IScreen
+    NewGameScreen ..|> INewGameViewObserver
+    NewGameScreen --o INewGameView
+    INewGameView <|.. NewGameView
+    INewGameViewObserver o-- NewGameView
+    NewGameView --> AssetManager
+    LoadGameScreen ..|> IScreen
+    LoadGameScreen --o ILoadGameView
+    LoadGameScreen ..|> ILoadGameViewObserver
+    ILoadGameView <|.. LoagGameView
+    ILoadGameViewObserver o-- LoagGameView
+    LoagGameView --> AssetManager
+    Application --o IScreen

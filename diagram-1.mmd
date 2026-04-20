@@ -1,0 +1,285 @@
+---
+config:
+  layout: elk
+  theme: neutral
+---
+classDiagram
+
+    class IGameModel~TGeometry~ {
+	    +SweepResult Sweep(MinefieldPosition pos)
+	    +FlagResult Flag(MinefieldPosition pos)
+	    +ChunkData GetChunk(ChunkPosition pos)
+    }
+
+    class GameModel~TGeometry~ {
+	    -IChunkStorage m_Storage
+	    -IChunkGenerator m_Generator
+	    -bool m_IsStarted
+	    +SweepResult Sweep(MinefieldPosition pos)
+	    +FlagResult Flag(MinefieldPosition pos)
+	    +ChunkData GetChunk(ChunkPosition pos)
+	    -IChunk GetOrGenerateChunk(ChunkPosition pos)
+	    -bool IsAccessible(MinefieldPosition pos)
+	    -int CountMinesAround(MinefieldPosition pos)
+	    -void SweepZeros(MinefieldPosition pos)
+    }
+
+
+    class SweepResult {
+        +OK
+        +BLOWN
+        +ALREADY_OPENED
+        +ALREADY_FLAGGED
+        +INVALID_CELL_POSITION
+        +INACCESSIBLE
+    }
+
+    class FlagResult {
+        +OK
+        +ALREADY_OPENED
+        +INVALID_CELL_POSITION
+        +INACCESSIBLE
+    }
+
+    class CellType {
+        +SAFE
+        +MINE
+    }
+
+    class CellState {
+        +OPENED
+        +CLOSED
+        +FLAGGED
+    }
+
+    class ICell {
+	    +SweepResult Sweep()
+	    +FlagResult Flag()
+	    +CellType GetType()
+	    +CellState GetState()
+    }
+
+    class Cell {
+	    -CellType m_Type
+	    -CellState m_State
+	    +SweepResult Sweep()
+	    +FlagResult Flag()
+	    +CellType GetType()
+	    +CellState GetState()
+    }
+
+
+    class IChunk~TGeometry~ {
+	    +SweepResult Sweep(CellPosition pos)
+	    +FlagResult Flag(CellPosition po)
+	    +ICell GetCell(CellPosition pos)
+    }
+
+    class Chunk~TGeometry~ {
+	    -unordered_map~CellPosition, ICell~ m_Cells
+	    +SweepResult Sweep(CellPosition pos)
+	    +FlagResult Flag(CellPosition po)
+	    +ICell GetCell(CellPosition pos)
+    }
+
+
+	namespace Factory {
+        class IChunkFactory~TGeometry~ {
+	        +IChunk CreateChunk(unordered_map~CellPosition, ICell~ cells)
+        }
+
+        class ChunkFactory~TGeometry~ {
+	        +IChunk CreateChunk(unordered_map~CellPosition, ICell~ cells)
+        }
+
+	}
+
+
+	namespace Stategy {
+        class IChunkGenerator~TGeometry~ {
+	        +IChunk GenerateChunk(ChunkPosition pos)
+        }
+
+        class RandomChunkGenerator~TGeometry~ {
+	        -IChunkFactory m_Factory
+	        -mt19937 m_RNG
+	        -double m_MineProbability
+	        +IChunk Generate(ChunkPosition pos)
+        }
+
+	}
+	namespace Proxy {
+        class IChunkStorage~TGeometry~ {
+	        +unordered_map~ChunkPosition, IChunk~ GetAllChunks()
+	        +IChunk GetChunk(ChunkPosition pos)
+	        +PushChunk(IChunk chunk, ChunkPosition pos)
+        }
+
+        class ChunkFileStorage~TGeometry~ {
+	        -filesystem::path m_FilePath
+	        -fstream m_File
+	        -IChunkFactory m_ChunkFactory
+	        -unordered_map~ChunkPosition, uint64_t~ m_ChunkOffsets
+	        +unordered_map~ChunkPosition, IChunk~ GetAllChunks()
+	        +IChunk GetChunk(ChunkPosition pos)
+	        +PushChunk(IChunk chunk, ChunkPosition pos)
+	        -IChunk ReadChunk(uint64_t offset)
+	        -void WriteChunk(uint64_t offset, IChunk chunk)
+        }
+
+        class ChunkStorageProxy~TGeometry~ {
+	        -ChunkFileStorage m_Storage
+	        -unordered_map~ChunkPosition, IChunk~ m_Chunks
+	        +unordered_map~ChunkPosition, IChunk~ GetAllChunks()
+	        +IChunk GetChunk(ChunkPosition pos)
+	        +PushChunk(IChunk chunk, ChunkPosition pos)
+        }
+
+	}
+	namespace GeometryConcept {
+        class TGeometry {
+	        +static constexpr int ID
+	        -int size
+	        CellPosition[] GetAllCellPositions(ChunkPosition chunk_pos)
+	        MinefieldPosition[] GetNeighboursPositions(MinefieldPosition pos)
+        }
+
+        class MinefieldPosition {
+	        +ChunkPosition chunk_pos
+	        +CellPosition cell_pos
+        }
+
+        class ChunkPosition {
+        }
+
+        class CellPosition {
+        }
+
+	}
+	namespace Square {
+        class SquareGeometry {
+	        +static constexpr int ID
+	        -int size
+	        CellPosition[] GetAllCellPositions(ChunkPosition chunk_pos)
+	        MinefieldPosition[] GetNeighboursPositions(MinefieldPosition pos)
+        }
+
+        class CellPosition_2["CellPosition"] {
+	        +int row
+	        +int col
+        }
+
+        class ChunkPosition_3["ChunkPosition"] {
+	        +long long row
+	        +long long col
+        }
+
+        class MinefieldPosition_2["MinefieldPosition"] {
+	        +ChunkPosition chunk_pos
+	        +CellPosition cell_pos
+        }
+
+	}
+	namespace TriHex {
+        class TriHexGeometry {
+	        +static constexpr int ID
+	        -int size
+	        CellPosition[] GetAllCellPositions(ChunkPosition chunk_pos)
+	        MinefieldPosition[] GetNeighboursPositions(MinefieldPosition pos)
+        }
+
+        class ChunkPosition_2["ChunkPosition"] {
+	        +long long a
+	        +long long b
+	        +long long c
+        }
+
+        class CellPosition_3["CellPosition"] {
+	        +int a
+	        +int b
+	        +int c
+        }
+
+        class MinefieldPosition_3["MinefieldPosition"] {
+	        +ChunkPosition chunk_pos
+	        +CellPosition cell_pos
+        }
+
+	}
+    
+
+    
+
+    class ChunkData~TGeometry~ {
+	    CellData[] cells
+    }
+
+    class CellData~TGeometry~ {
+	    CellPosition pos
+	    CellType type
+	    CellState state
+	    int mines_around
+    }
+
+    
+    <<enum>> SweepResult
+    <<enum>> FlagResult
+    <<enum>> CellType
+    <<enum>> CellState
+	<<Interface>> ICell
+	<<Interface>> IChunk
+	<<Interface>> IChunkFactory
+	<<Interface>> IChunkGenerator
+	<<Interface>> IChunkStorage
+	<<struct>> ChunkData
+	<<struct>> CellData
+	<<Interface>> IGameModel
+	<<concept>> TGeometry
+	<<typedef>> MinefieldPosition
+	<<typedef>> ChunkPosition
+	<<typedef>> CellPosition
+	<<struct>> CellPosition_2
+	<<struct>> ChunkPosition_3
+	<<struct>> MinefieldPosition_2
+	<<struct>> ChunkPosition_2
+	<<struct>> CellPosition_3
+	<<struct>> MinefieldPosition_3
+
+    ICell --> SweepResult
+    ICell --> FlagResult
+    ICell --> CellType
+    ICell --> CellState
+    MinefieldPosition --* CellPosition
+    MinefieldPosition --* ChunkPosition
+    TGeometry --> CellPosition : defines
+    TGeometry --> ChunkPosition : defines
+    TGeometry --> MinefieldPosition : defines
+    Cell ..|> ICell
+    Chunk ..|> IChunk
+    Chunk --o ICell
+    ChunkFactory ..|> IChunkFactory
+    ChunkFactory --> Chunk : creates
+    RandomChunkGenerator ..|> IChunkGenerator
+    RandomChunkGenerator --o IChunkFactory
+    ChunkFileStorage ..|> IChunkStorage
+    ChunkStorageProxy ..|> IChunkStorage
+    ChunkStorageProxy --* ChunkFileStorage
+    GameModel ..|> IGameModel
+    GameModel --o IChunkStorage
+    GameModel --o IChunkGenerator
+    SquareGeometry ..|> TGeometry
+    MinefieldPosition_2 --* ChunkPosition_3
+    MinefieldPosition_2 --* CellPosition_2
+    SquareGeometry --> MinefieldPosition_2 : defines
+    SquareGeometry --> ChunkPosition_3 : defines
+    SquareGeometry --> CellPosition_2 : defines
+    MinefieldPosition_3 --* ChunkPosition_2
+    MinefieldPosition_3 --* CellPosition_3
+    TriHexGeometry ..|> TGeometry
+    TriHexGeometry --> MinefieldPosition_3 : defines
+    TriHexGeometry --> ChunkPosition_2 : defines
+    TriHexGeometry --> CellPosition_3 : defines
+    IGameModel ..> TGeometry
+    ChunkData --* CellData
+    IGameModel --> ChunkData
+    ChunkFileStorage -- IChunkFactory
