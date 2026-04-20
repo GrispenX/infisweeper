@@ -1,7 +1,6 @@
 ---
 config:
   layout: dagre
-  theme: neutral
 ---
 classDiagram
 direction TB
@@ -154,6 +153,11 @@ direction TB
             -void ResolveUILayout()
         }
 
+        class SaveFileInspector {
+            +unordered_map~filesystem::path, Header~ GetValidFiles(filesystem::path directory_path)
+            +Header ReadHeader(filesystem::path file_path)
+        }
+
 	}
     class AssetManager {
 	    -unordered_map~TextureID, filesystem::path~ m_TexturePathes
@@ -233,3 +237,4 @@ direction TB
     ILoadGameViewObserver o-- LoagGameView
     LoagGameView --> AssetManager
     Application --o IScreen
+    LoadGameScreen --> SaveFileInspector
