@@ -15,12 +15,10 @@ public:
     using ChunkPosition = typename T::ChunkPosition;
     using MinefieldPosition = typename T::MinefieldPosition;
 
-    GameModel(std::unique_ptr<IChunkGenerator<T>> chunk_generator, std::unique_ptr<IChunkStorage<T>> chunk_storage) :
+    GameModel(std::unique_ptr<IChunkGenerator<T>> chunk_generator, std::unique_ptr<IChunkStorage<T>> chunk_storage, bool is_started) :
         m_ChunkGenerator(std::move(chunk_generator)),
-        m_ChunkStorage(std::move(chunk_storage))
-        {
-            m_IsStarted = m_ChunkStorage->GetAllChunks().size() > 1;
-        }
+        m_ChunkStorage(std::move(chunk_storage)),
+        m_IsStarted(is_started) {}
 
     SweepResult Sweep(const MinefieldPosition& pos) override
     {

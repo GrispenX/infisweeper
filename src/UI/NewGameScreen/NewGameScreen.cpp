@@ -48,7 +48,8 @@ void NewGameScreen::OnCreateGameButton(std::string save_name, int geometry_id)
                         save_name,
                         std::make_unique<ChunkFactory<SquareGeometry>>()
                     )
-                )
+                ),
+                false
             )
         );
         break;
@@ -65,7 +66,8 @@ void NewGameScreen::OnCreateGameButton(std::string save_name, int geometry_id)
                         save_name,
                         std::make_unique<ChunkFactory<TriHexGeometry>>()
                     )
-                )
+                ),
+                false
             )
         );
         break;

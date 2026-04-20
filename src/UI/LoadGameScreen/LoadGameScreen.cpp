@@ -53,7 +53,8 @@ void LoadGameScreen::OnLoadButton(std::filesystem::path selected_file)
                         selected_file,
                         std::make_unique<ChunkFactory<SquareGeometry>>()
                     )
-                )
+                ),
+                true
             )
         );
         break;
@@ -70,7 +71,8 @@ void LoadGameScreen::OnLoadButton(std::filesystem::path selected_file)
                         selected_file,
                         std::make_unique<ChunkFactory<TriHexGeometry>>()
                     )
-                )
+                ),
+                true
             )
         );
         break;
